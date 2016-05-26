@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,33 +8,33 @@ using System.Web.Http;
 
 namespace API
 {
+    [RoutePrefix("api/Tournament")]
     public class TournamentController : ApiController
     {
-        // GET api/<controller>
-        public IEnumerable<string> Get()
+        [Route("")]
+        public IEnumerable<Tournament> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new Tournament[0];
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
+        [Route("{id:int}")]
+        public Tournament Get(int id)
         {
-            return "value";
+            return null;
         }
 
-        // POST api/<controller>
-        public void Post([FromBody]string value)
+        [Route("")]
+        public void Create([FromBody]Tournament value)
         {
+
         }
 
-        // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        [Route("{id:int}/GenerateMatchup")]
+        public IEnumerable<Matchup> GenerateMatchup(int id)
         {
-        }
 
-        // DELETE api/<controller>/5
-        public void Delete(int id)
-        {
+
+            return new List<Matchup>();
         }
     }
 }
