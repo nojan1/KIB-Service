@@ -39,6 +39,18 @@ namespace KIB_Service.Tests
         }
 
         [Fact]
+        public void GeneratingMatchupsWithoutEnoughConstantsShouldThrow()
+        {
+            var matchupEngine = new MatchupEngine();
+            var contestants = new List<Contestant>
+            {
+                new Contestant()
+            };
+
+            Assert.Throws<Exception>(() => { matchupEngine.GenerateMatchup(contestants); });
+        }
+
+        [Fact]
         public void EnteringAnUneveenNumberOfContestantsForRoundOneShouldLeaveOneOut()
         {
             var matchupEngine = new MatchupEngine();
