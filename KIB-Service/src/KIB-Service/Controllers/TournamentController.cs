@@ -3,24 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using KIB_Service.Models.dto;
+using KIB_Service.Controllers.Interfaces;
 
 namespace KIB_Service.Controllers
 {
     [Route("api/[controller]")]
     public class TournamentController : Controller
     {
+        private ITournamentRepository tournamentRepository;
+
+        public TournamentController(ITournamentRepository tournamentRepository)
+        {
+            this.tournamentRepository = tournamentRepository;
+        }
+
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<TournamentDto> Get()
         {
-            return new string[] { "value1", "value2" };
+            return tournamentRepository.List();
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            var tournament = tournamentRepository.Get(id);
+            if(tournament == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(tournament);
         }
 
         // POST api/values

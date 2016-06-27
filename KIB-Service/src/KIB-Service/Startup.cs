@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using KIB_Service.Repositories;
+using KIB_Service.Controllers.Interfaces;
 
 namespace KIB_Service
 {
@@ -29,6 +31,8 @@ namespace KIB_Service
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddScoped<ITournamentRepository, TournamentRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
