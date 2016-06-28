@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using KIB_Service.Models.dto;
-using KIB_Service.Controllers.Interfaces;
+using KIB_Service.Repositories.Interfaces;
 
 namespace KIB_Service.Controllers
 {
@@ -22,7 +22,11 @@ namespace KIB_Service.Controllers
         [HttpGet]
         public IEnumerable<TournamentDto> Get()
         {
-            return tournamentRepository.List();
+            return tournamentRepository.List().Select(t => new TournamentDto
+            {
+                Name = t.Name,
+                EventDate = t.Date
+            });
         }
 
         // GET api/values/5

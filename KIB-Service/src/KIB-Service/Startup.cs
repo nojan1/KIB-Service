@@ -8,7 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using KIB_Service.Repositories;
-using KIB_Service.Controllers.Interfaces;
+using KIB_Service.Repositories.Interfaces;
+using Microsoft.Extensions.Options;
+using KIB_Service.Helpers;
 
 namespace KIB_Service
 {
@@ -32,6 +34,8 @@ namespace KIB_Service
             // Add framework services.
             services.AddMvc();
 
+
+            services.AddSingleton<ConnectionStringOption>(new ConnectionStringOption { ConnectionString = Configuration.GetConnectionString("DefaultConnection") });
             services.AddScoped<ITournamentRepository, TournamentRepository>();
         }
 

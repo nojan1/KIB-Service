@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FDD6649-7996-4C49-A6AD-4F1CA5A78D73}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
+		tournament.sql = tournament.sql
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "KIB-Service", "src\KIB-Service\KIB-Service.xproj", "{510817D9-1C31-4277-BFE0-544221363AC0}"
