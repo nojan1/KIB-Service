@@ -31,16 +31,7 @@ namespace KIB_Service.TournamentMatchupEngine
                 return MatchupRound1(contestants);
             }
         }
-
-        private ICollection<Matchup> MatchupRoundX(ICollection<Contestant> contestants)
-        {
-            var scoredMatchups = new List<MatchupScore>();
-
-
-
-            return scoredMatchups.First(m => m.Score == scoredMatchups.Max(x => x.Score)).Matchups;
-        }
-
+        
         private ICollection<Matchup> MatchupRound1(ICollection<Contestant> contestants)
         {
             var returnValue = new List<Matchup>();
@@ -61,6 +52,101 @@ namespace KIB_Service.TournamentMatchupEngine
                 });
 
                 shuffledContestants.RemoveRange(0, 2);
+            }
+
+            return returnValue;
+        }
+
+        private ICollection<Matchup> MatchupRoundX(ICollection<Contestant> contestants)
+        {
+            var scoredMatchups = new List<MatchupScore>();
+
+            var allPossibleMatchups = GenerateAllPossibleMatchups(contestants);
+            foreach(var matchups in allPossibleMatchups)
+            {
+                scoredMatchups.Add(new MatchupScore
+                {
+                    Score = CalculateScoreForMatchup(matchups, contestants),
+                    Matchups = matchups.ToList()
+                });
+            }
+
+            var bestMatchup = scoredMatchups.First(m => m.Score == scoredMatchups.Max(x => x.Score)).Matchups.ToList().Shuffle().ToList();
+            for (int i = 1; i <= bestMatchup.Count; i++)
+                bestMatchup[i - 1].Table = i;
+
+            return bestMatchup;
+        }
+
+        private int CalculateScoreForMatchup(IEnumerable<Matchup> matchups, ICollection<Contestant> allContestants)
+        {
+            int score = 0;
+
+            foreach(var matchup in matchups)
+            {
+                //If it is the best score match
+                int scoreDifference = Math.Abs(matchup.Contestant1.Score - matchup.Contestant2.Score);
+                var contest1ScoreDifference = allContestants.Where(c => c.Identifier != matchup.Contestant1.Identifier).Select(c => Math.Abs(c.Score - matchup.Contestant1.Score)).Min();
+                var contest2ScoreDifference = allContestants.Where(c => c.Identifier != matchup.Contestant2.Identifier).Select(c => Math.Abs(c.Score - matchup.Contestant2.Score)).Min();
+
+                if(scoreDifference == contest1ScoreDifference)
+                {
+                    score += 1;
+                }
+
+                if (scoreDifference == contest2ScoreDifference)
+                {
+                    score += 1;
+                }
+
+                //If the players have met before
+                if (matchup.Contestant1.PreviousOpponents.Any(o => o.Identifier == matchup.Contestant2.Identifier) ||
+                   matchup.Contestant2.PreviousOpponents.Any(o => o.Identifier == matchup.Contestant1.Identifier))
+                {
+                    score -= 2;
+                }
+            }
+
+            return score;
+        }
+
+        private IEnumerable<IEnumerable<Matchup>> GenerateAllPossibleMatchups(ICollection<Contestant> contestants)
+        {
+            var allMatchups = (from m in Enumerable.Range(0, 1 << contestants.Count)
+                    select
+                        from i in Enumerable.Range(0, contestants.Count)
+                        where (m & (1 << i)) != 0
+                        select contestants.ElementAt(i))
+                    .Where(x => x.Count() == 2)
+                    .Select(x => new Matchup
+                    {
+                        Contestant1 = x.ElementAt(0),
+                        Contestant2 = x.ElementAt(1)
+                    })
+                    .ToList();
+
+
+            var returnValue = new List<IEnumerable<Matchup>>();
+            while (allMatchups.Any())
+            {
+                var workingSet = new List<Matchup>();
+                foreach(var contestant in contestants)
+                {
+                    if(!workingSet.Any(m => m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier))
+                    {
+                        var matchup = allMatchups.First(m => (m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier) &&
+                                                              !workingSet.Any(m2 => m2.Contestant1.Identifier == m.Contestant1.Identifier || m2.Contestant1.Identifier == m.Contestant2.Identifier ||
+                                                                                    m2.Contestant2.Identifier == m.Contestant1.Identifier || m2.Contestant2.Identifier == m.Contestant2.Identifier));
+                        allMatchups.Remove(matchup);
+
+                        workingSet.Add(matchup);
+                    }
+
+                    if (!allMatchups.Any())
+                        break;
+                }
+
+                returnValue.Add(workingSet);
             }
 
             return returnValue;
