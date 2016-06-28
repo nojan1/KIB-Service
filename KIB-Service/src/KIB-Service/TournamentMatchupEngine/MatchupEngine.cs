@@ -99,11 +99,17 @@ namespace KIB_Service.TournamentMatchupEngine
                     score += 1;
                 }
 
-                //If the players have met before
+                //If the contestants have met before
                 if (matchup.Contestant1.PreviousOpponents.Any(o => o.Identifier == matchup.Contestant2.Identifier) ||
                    matchup.Contestant2.PreviousOpponents.Any(o => o.Identifier == matchup.Contestant1.Identifier))
                 {
                     score -= 2;
+                }
+
+                //If the contestants have the same affiliation give minus points
+                if(matchup.Contestant1.Affiliation == matchup.Contestant2.Affiliation)
+                {
+                    score -= 1;
                 }
             }
 
