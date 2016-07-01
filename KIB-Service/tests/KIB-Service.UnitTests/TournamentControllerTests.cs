@@ -1,6 +1,7 @@
 ﻿using KIB_Service.Controllers;
-using KIB_Service.Controllers.Interfaces;
+using KIB_Service.Models;
 using KIB_Service.Models.dto;
+using KIB_Service.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -19,7 +20,7 @@ namespace KIB_Service.Tests
         {
             var mockRepository = new Mock<ITournamentRepository>();
             mockRepository.Setup(r => r.List())
-                          .Returns(new List<TournamentDto>());
+                          .Returns(new List<Tournament>());
 
             var ctrl = new TournamentController(mockRepository.Object);
 
@@ -45,7 +46,7 @@ namespace KIB_Service.Tests
         {
             var mockRepository = new Mock<ITournamentRepository>();
             mockRepository.Setup(r => r.Get(It.Is<int>(x => x == 1)))
-                          .Returns(new TournamentDto());
+                          .Returns(new Tournament());
 
             var ctrl = new TournamentController(mockRepository.Object);
 

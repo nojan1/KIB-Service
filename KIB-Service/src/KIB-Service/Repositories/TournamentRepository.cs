@@ -27,21 +27,36 @@ namespace KIB_Service.Repositories
 
         public Tournament Get(int id)
         {
-            using(var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = "select * from Tournament where Id=" + id.ToString(); //TODO: Fix!!!!
-
-                conn.Open();
-                var reader = cmd.ExecuteReader();
-                
-            }
-
-            return null;
+            return getTournaments(" where Id=" + id.ToString() + " limit 1").FirstOrDefault();
         }
 
         public ICollection<Tournament> List()
         {
-            return new List<Tournament>();
+            return getTournaments("");
+        }
+
+        private ICollection<Tournament> getTournaments(string sqlPostfix)
+        {
+            var tournaments = new List<Tournament>();
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "select Id, Name, Date from Tournament" + sqlPostfix;
+
+                conn.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    tournaments.Add(new Tournament
+                    {
+                        Id = reader.GetInt32(0),
+                        Name = reader.GetString(1),
+                        Date = reader.GetDateTime(2)
+                    });
+                }
+            }
+
+            return tournaments;
         }
     }
 }
