@@ -36,6 +36,7 @@ namespace KIB_Service.Controllers
             var tournament = tournamentRepository.Get(id);
             if(tournament == null)
             {
+                throw new Exception("bhuuu");
                 return NotFound();
             }
 

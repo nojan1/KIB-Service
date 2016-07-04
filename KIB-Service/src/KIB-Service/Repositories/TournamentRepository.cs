@@ -15,9 +15,9 @@ namespace KIB_Service.Repositories
     {
         private DbConnection conn;
 
-        public TournamentRepository(ConnectionStringOption connectionStringOption)
+        public TournamentRepository(DbConnection conn)
         {
-            conn = new MySqlConnection(connectionStringOption.ConnectionString);
+            this.conn = conn;
         }
 
         public void Add(Tournament tournament)
@@ -27,36 +27,22 @@ namespace KIB_Service.Repositories
 
         public Tournament Get(int id)
         {
-            return getTournaments(" where Id=" + id.ToString() + " limit 1").FirstOrDefault();
+            return conn.Get("select Id, Name, Date from Tournament where Id=" + id.ToString() + " limit 1", UnpackTournament);
         }
 
         public ICollection<Tournament> List()
         {
-            return getTournaments("");
+            return conn.Query("select Id, Name, Date from Tournament", UnpackTournament);
         }
 
-        private ICollection<Tournament> getTournaments(string sqlPostfix)
+        private Tournament UnpackTournament(DbDataReader reader)
         {
-            var tournaments = new List<Tournament>();
-
-            using (var cmd = conn.CreateCommand())
+            return new Tournament
             {
-                cmd.CommandText = "select Id, Name, Date from Tournament" + sqlPostfix;
-
-                conn.Open();
-                var reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    tournaments.Add(new Tournament
-                    {
-                        Id = reader.GetInt32(0),
-                        Name = reader.GetString(1),
-                        Date = reader.GetDateTime(2)
-                    });
-                }
-            }
-
-            return tournaments;
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                Date = reader.GetDateTime(2)
+            };
         }
     }
 }

@@ -11,6 +11,9 @@ using KIB_Service.Repositories;
 using KIB_Service.Repositories.Interfaces;
 using Microsoft.Extensions.Options;
 using KIB_Service.Helpers;
+using System.Data.Common;
+using MySql.Data.MySqlClient;
+using KIB_Service.Filters;
 
 namespace KIB_Service
 {
@@ -23,20 +26,28 @@ namespace KIB_Service
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
+            this.env = env;
         }
 
+        private IHostingEnvironment env;
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc()
+                    .AddMvcOptions(o => { o.Filters.Add(new GlobalAPIExceptionFilter(env)); });
 
 
             services.AddSingleton<ConnectionStringOption>(new ConnectionStringOption { ConnectionString = Configuration.GetConnectionString("DefaultConnection") });
             services.AddScoped<ITournamentRepository, TournamentRepository>();
+            services.AddTransient<DbConnection>((provider) =>
+            {
+                return new MySqlConnection(provider.GetService<ConnectionStringOption>().ConnectionString);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
