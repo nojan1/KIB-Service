@@ -64,7 +64,7 @@ namespace KIB_Service.Tests
             var ctrl = new TournamentController(mockRepository.Object);
             ctrl.ModelState.AddModelError("", "error");
 
-            var result = ctrl.Post(new TournamentDto());
+            var result = ctrl.CreateTournament(new TournamentDto());
 
             Assert.IsAssignableFrom<BadRequestResult>(result);
         }
@@ -84,7 +84,7 @@ namespace KIB_Service.Tests
 
             var ctrl = new TournamentController(mockRepository.Object);
 
-            var result = ctrl.Post(model);
+            var result = ctrl.CreateTournament(model);
 
             Assert.IsAssignableFrom<OkObjectResult>(result);
 

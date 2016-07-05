@@ -16,12 +16,16 @@ namespace KIB_Service.Helpers
             {
                 cmd.CommandText = sql;
 
-                conn.Open();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    conn.Open();
+
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     data.Add(unpackFunction(reader));
                 }
+
+                //conn.Close();
             }
 
             return data;
@@ -39,9 +43,9 @@ namespace KIB_Service.Helpers
 
         public static T Insert<T>(this DbConnection conn, string tableName, IEnumerable<KeyValuePair<string, object>> columnValues, Func<DbDataReader, T> unpackFunction)
         {
-            string sql = "insert into " + tableName + " ";
+            string sql = "insert into " + tableName + " (";
             sql += string.Join(",", columnValues.Select(v => v.Key));
-            sql += " values(";
+            sql += ") values(";
             sql += string.Join(",", columnValues.Select(v => "@" + v.Key));
             sql += ")";
 
@@ -58,7 +62,11 @@ namespace KIB_Service.Helpers
                     cmd.Parameters.Add(dbParam);
                 }
 
+                if(conn.State != System.Data.ConnectionState.Open)
+                    conn.Open();
+                
                 var id = cmd.ExecuteNonQuery();
+                //conn.Close();
 
                 if (unpackFunction != null)
                 {

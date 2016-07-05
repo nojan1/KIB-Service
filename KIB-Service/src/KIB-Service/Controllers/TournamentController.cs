@@ -32,7 +32,7 @@ namespace KIB_Service.Controllers
         public IActionResult Get(int id)
         {
             var tournament = tournamentRepository.Get(id);
-            if(tournament == null)
+            if (tournament == null)
             {
                 return NotFound();
             }
@@ -40,8 +40,8 @@ namespace KIB_Service.Controllers
             return Ok(tournament);
         }
 
-        [HttpPost]
-        public IActionResult Post([FromBody]TournamentDto value)
+        [HttpPost("")]
+        public IActionResult CreateTournament([FromBody]TournamentDto value)
         {
             if (!ModelState.IsValid)
             {
@@ -53,16 +53,28 @@ namespace KIB_Service.Controllers
             return Ok(tournament);
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        [HttpGet("{tournamentId}/matchups")]
+        public IActionResult GetMatchups(int tournamentId)
         {
+            throw new NotImplementedException();
         }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpGet("{tournamentId}/score")]
+        public IActionResult GetHighscore(int tournamentId)
         {
+            throw new NotImplementedException();
         }
+
+        [HttpPost("{tournamentId}/Player")]
+        public IActionResult AddPlayer(int tournamentId, [FromBody]PlayerDto player)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
     }
 }
