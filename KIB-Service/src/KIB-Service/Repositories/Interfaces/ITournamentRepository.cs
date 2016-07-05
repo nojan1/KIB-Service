@@ -11,6 +11,6 @@ namespace KIB_Service.Repositories.Interfaces
     {
         ICollection<Tournament> List();
         Tournament Get(int id);
-        void Add(Tournament tournament);
+        Tournament Create(TournamentDto data);
     }
 }

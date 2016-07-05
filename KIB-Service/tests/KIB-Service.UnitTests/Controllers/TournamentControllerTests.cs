@@ -55,5 +55,42 @@ namespace KIB_Service.Tests
             Assert.IsAssignableFrom<OkObjectResult>(result);
             Assert.NotNull((result as OkObjectResult).Value);
         }
+
+        [Fact]
+        public void CallingPostWithInvalidInputDataShouldReturn400()
+        {
+            var mockRepository = new Mock<ITournamentRepository>();
+
+            var ctrl = new TournamentController(mockRepository.Object);
+            ctrl.ModelState.AddModelError("", "error");
+
+            var result = ctrl.Post(new TournamentDto());
+
+            Assert.IsAssignableFrom<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public void CallingPostWithValidDataShouldReturnOkAndObject()
+        {
+            var model = new TournamentDto
+            {
+                Name = "Test tournament",
+                EventDate = DateTimeOffset.Now.AddDays(2)
+            };
+
+            var mockRepository = new Mock<ITournamentRepository>();
+            mockRepository.Setup(r => r.Create(It.IsAny<TournamentDto>()))
+                          .Returns<TournamentDto>((data) => new Tournament { Name = data.Name, Date = data.EventDate.Value });
+
+            var ctrl = new TournamentController(mockRepository.Object);
+
+            var result = ctrl.Post(model);
+
+            Assert.IsAssignableFrom<OkObjectResult>(result);
+
+            var tournament = (result as OkObjectResult).Value as Tournament;
+            Assert.Equal(model.Name, tournament.Name);
+            Assert.Equal(model.EventDate.Value, tournament.Date);
+        }
     }
 }

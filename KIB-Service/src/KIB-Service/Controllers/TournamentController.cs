@@ -18,7 +18,6 @@ namespace KIB_Service.Controllers
             this.tournamentRepository = tournamentRepository;
         }
 
-        // GET api/values
         [HttpGet]
         public IEnumerable<TournamentDto> Get()
         {
@@ -29,7 +28,6 @@ namespace KIB_Service.Controllers
             });
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -42,10 +40,17 @@ namespace KIB_Service.Controllers
             return Ok(tournament);
         }
 
-        // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post([FromBody]TournamentDto value)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var tournament = tournamentRepository.Create(value);
+
+            return Ok(tournament);
         }
 
         // PUT api/values/5

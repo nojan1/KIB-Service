@@ -20,9 +20,15 @@ namespace KIB_Service.Repositories
             this.conn = conn;
         }
 
-        public void Add(Tournament tournament)
+        public Tournament Create(TournamentDto data)
         {
-            throw new NotImplementedException();
+            var arguments = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("Name", data.Name),
+                new KeyValuePair<string, object>("Date", data.EventDate)
+            };
+
+            return conn.Insert("Tournament", arguments, UnpackTournament);
         }
 
         public Tournament Get(int id)
