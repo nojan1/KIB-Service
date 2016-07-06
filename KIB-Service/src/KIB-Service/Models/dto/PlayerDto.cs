@@ -12,5 +12,8 @@ namespace KIB_Service.Models.dto
         public string Name { get; set; }
         [Required]
         public string Affiliation { get; set; }
+
+        public int Id { get; set; }
+        public bool Active { get; set; }
     }
 }

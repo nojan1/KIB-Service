@@ -22,7 +22,7 @@ namespace KIB_Service.Tests
             mockRepository.Setup(r => r.List())
                           .Returns(new List<Tournament>());
 
-            var ctrl = new TournamentController(mockRepository.Object);
+            var ctrl = new TournamentController(mockRepository.Object, null);
 
             var result = ctrl.Get();
 
@@ -34,7 +34,7 @@ namespace KIB_Service.Tests
         public void CallingGetOnNonExistingIdShouldReturnNotFound()
         {
             var mockRepository = new Mock<ITournamentRepository>();
-            var ctrl = new TournamentController(mockRepository.Object);
+            var ctrl = new TournamentController(mockRepository.Object, null);
 
             var result = ctrl.Get(-1);
 
@@ -48,7 +48,7 @@ namespace KIB_Service.Tests
             mockRepository.Setup(r => r.Get(It.Is<int>(x => x == 1)))
                           .Returns(new Tournament());
 
-            var ctrl = new TournamentController(mockRepository.Object);
+            var ctrl = new TournamentController(mockRepository.Object, null);
 
             var result = ctrl.Get(1);
 
@@ -61,7 +61,7 @@ namespace KIB_Service.Tests
         {
             var mockRepository = new Mock<ITournamentRepository>();
 
-            var ctrl = new TournamentController(mockRepository.Object);
+            var ctrl = new TournamentController(mockRepository.Object, null);
             ctrl.ModelState.AddModelError("", "error");
 
             var result = ctrl.CreateTournament(new TournamentDto());
@@ -79,10 +79,10 @@ namespace KIB_Service.Tests
             };
 
             var mockRepository = new Mock<ITournamentRepository>();
-            mockRepository.Setup(r => r.Create(It.IsAny<TournamentDto>()))
+            mockRepository.Setup(r => r.Add(It.IsAny<TournamentDto>()))
                           .Returns<TournamentDto>((data) => new Tournament { Name = data.Name, Date = data.EventDate.Value });
 
-            var ctrl = new TournamentController(mockRepository.Object);
+            var ctrl = new TournamentController(mockRepository.Object, null);
 
             var result = ctrl.CreateTournament(model);
 

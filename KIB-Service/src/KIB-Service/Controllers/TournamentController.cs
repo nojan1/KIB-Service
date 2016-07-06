@@ -12,10 +12,13 @@ namespace KIB_Service.Controllers
     public class TournamentController : Controller
     {
         private ITournamentRepository tournamentRepository;
+        private IPlayerRepository playerRepository;
 
-        public TournamentController(ITournamentRepository tournamentRepository)
+        public TournamentController(ITournamentRepository tournamentRepository,
+                                    IPlayerRepository playerRepository)
         {
             this.tournamentRepository = tournamentRepository;
+            this.playerRepository = playerRepository;
         }
 
         [HttpGet]
@@ -44,7 +47,7 @@ namespace KIB_Service.Controllers
                 return BadRequest();
             }
 
-            var tournament = tournamentRepository.Create(value);
+            var tournament = tournamentRepository.Add(value);
 
             return Ok(tournament.ToTournamentDto());
         }
@@ -69,7 +72,9 @@ namespace KIB_Service.Controllers
                 return BadRequest();
             }
 
-            return Ok();
+            var createdPlayer = playerRepository.Add(tournamentId, player);
+
+            return Ok(createdPlayer.ToPlayerDto());
         }
 
     }

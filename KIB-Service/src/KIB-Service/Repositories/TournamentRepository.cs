@@ -20,7 +20,7 @@ namespace KIB_Service.Repositories
             this.dbHelper = dbHelper;
         }
 
-        public Tournament Create(TournamentDto data)
+        public Tournament Add(TournamentDto data)
         {
             var arguments = new List<KeyValuePair<string, object>>
             {

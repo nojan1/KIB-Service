@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace KIB_Service.Repositories.Interfaces
 {
-    public interface ITournamentRepository
+    public interface IPlayerRepository
     {
-        ICollection<Tournament> List();
-        Tournament Get(int id);
-        Tournament Add(TournamentDto data);
+        Player Add(int tournamentId, PlayerDto data);
     }
 }

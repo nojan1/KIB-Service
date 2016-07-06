@@ -18,6 +18,7 @@ namespace KIB_Service.Models
         {
             return new TournamentDto
             {
+                Id = Id,
                 Name = Name,
                 EventDate = Date
             };
