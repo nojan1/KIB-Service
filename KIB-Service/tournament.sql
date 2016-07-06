@@ -29,6 +29,7 @@ create table Round (
 create table Matchup (
 	Id int auto_increment primary key,
 	RoundId int not null,
+	TableNumber int not null,
 	Player1Id int not null,
 	Player2Id int not null,
 

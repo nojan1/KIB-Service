@@ -18,7 +18,7 @@ namespace KIB_Service.Repositories
             this.dbHelper = dbHelper;
         }
 
-        public void Add(Round newRound)
+        public Round Add(Round newRound)
         {
             throw new NotImplementedException();
         }
