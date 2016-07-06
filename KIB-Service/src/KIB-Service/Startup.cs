@@ -44,10 +44,7 @@ namespace KIB_Service
 
             services.AddSingleton<ConnectionStringOption>(new ConnectionStringOption { ConnectionString = Configuration.GetConnectionString("DefaultConnection") });
             services.AddScoped<ITournamentRepository, TournamentRepository>();
-            services.AddTransient<DbConnection>((provider) =>
-            {
-                return new MySqlConnection(provider.GetService<ConnectionStringOption>().ConnectionString);
-            });
+            services.AddScoped<DBHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

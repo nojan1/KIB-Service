@@ -13,11 +13,11 @@ namespace KIB_Service.Repositories
 {
     public class TournamentRepository : ITournamentRepository
     {
-        private DbConnection conn;
+        private DBHelper dbHelper;
 
-        public TournamentRepository(DbConnection conn)
+        public TournamentRepository(DBHelper dbHelper)
         {
-            this.conn = conn;
+            this.dbHelper = dbHelper;
         }
 
         public Tournament Create(TournamentDto data)
@@ -28,17 +28,17 @@ namespace KIB_Service.Repositories
                 new KeyValuePair<string, object>("Date", data.EventDate.Value.ToString())
             };
 
-            return conn.Insert("Tournament", arguments, UnpackTournament);
+            return dbHelper.Insert("Tournament", arguments, UnpackTournament);
         }
 
         public Tournament Get(int id)
         {
-            return conn.Get("select Id, Name, Date from Tournament where Id=" + id.ToString() + " limit 1", UnpackTournament);
+            return dbHelper.Get("select Id, Name, Date from Tournament where Id=" + id.ToString() + " limit 1", UnpackTournament);
         }
 
         public ICollection<Tournament> List()
         {
-            return conn.Query("select Id, Name, Date from Tournament", UnpackTournament);
+            return dbHelper.Query("select Id, Name, Date from Tournament", UnpackTournament);
         }
 
         private Tournament UnpackTournament(DbDataReader reader)

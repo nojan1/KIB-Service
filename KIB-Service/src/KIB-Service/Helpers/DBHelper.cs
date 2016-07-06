@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -6,18 +7,32 @@ using System.Threading.Tasks;
 
 namespace KIB_Service.Helpers
 {
-    public static class DBHelper
+    public class DBHelper
     {
-        public static ICollection<T> Query<T>(this DbConnection conn, string sql, Func<DbDataReader, T> unpackFunction)
+        private ConnectionStringOption connectionStringOption;
+        public DBHelper(ConnectionStringOption connectionStringOption)
         {
+            this.connectionStringOption = connectionStringOption;
+        }
+
+        public DbConnection Connection
+        {
+            get
+            {
+                return new MySqlConnection(connectionStringOption.ConnectionString);
+            }
+        }
+
+        public ICollection<T> Query<T>(string sql, Func<DbDataReader, T> unpackFunction)
+        {
+            var conn = Connection;
             var data = new List<T>();
 
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;
 
-                if (conn.State != System.Data.ConnectionState.Open)
-                    conn.Open();
+                conn.Open();
 
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -25,35 +40,37 @@ namespace KIB_Service.Helpers
                     data.Add(unpackFunction(reader));
                 }
 
-                //conn.Close();
+                conn.Close();
             }
 
             return data;
         }
 
-        public static T Get<T>(this DbConnection conn, string sql, Func<DbDataReader, T> unpackFunction)
+        public T Get<T>(string sql, Func<DbDataReader, T> unpackFunction)
         {
-            return conn.Query(sql, unpackFunction).FirstOrDefault();
+            return Query(sql, unpackFunction).FirstOrDefault();
         }
 
-        public static void Insert(this DbConnection conn, string tableName, IEnumerable<KeyValuePair<string, object>> columnValues)
+        public void Insert(string tableName, IEnumerable<KeyValuePair<string, object>> columnValues)
         {
-            Insert<object>(conn, tableName, columnValues, null);
+            Insert<object>(tableName, columnValues, null);
         }
 
-        public static T Insert<T>(this DbConnection conn, string tableName, IEnumerable<KeyValuePair<string, object>> columnValues, Func<DbDataReader, T> unpackFunction)
+        public T Insert<T>(string tableName, IEnumerable<KeyValuePair<string, object>> columnValues, Func<DbDataReader, T> unpackFunction)
         {
+            var conn = Connection;
+
             string sql = "insert into " + tableName + " (";
             sql += string.Join(",", columnValues.Select(v => v.Key));
             sql += ") values(";
             sql += string.Join(",", columnValues.Select(v => "@" + v.Key));
             sql += ")";
 
-            using(var cmd = conn.CreateCommand())
+            using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;
 
-                foreach(var columnValue in columnValues)
+                foreach (var columnValue in columnValues)
                 {
                     var dbParam = cmd.CreateParameter();
                     dbParam.ParameterName = columnValue.Key;
@@ -62,16 +79,15 @@ namespace KIB_Service.Helpers
                     cmd.Parameters.Add(dbParam);
                 }
 
-                if(conn.State != System.Data.ConnectionState.Open)
-                    conn.Open();
-                
+                conn.Open();
+
                 var id = cmd.ExecuteNonQuery();
-                //conn.Close();
+                conn.Close();
 
                 if (unpackFunction != null)
                 {
                     string getSql = "select * from " + tableName + " where id = " + id.ToString() + " limit 1";
-                    return conn.Get(getSql, unpackFunction);
+                    return Get(getSql, unpackFunction);
                 }
                 else
                 {

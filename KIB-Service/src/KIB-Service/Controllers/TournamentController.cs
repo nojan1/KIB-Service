@@ -21,11 +21,7 @@ namespace KIB_Service.Controllers
         [HttpGet]
         public IEnumerable<TournamentDto> Get()
         {
-            return tournamentRepository.List().Select(t => new TournamentDto
-            {
-                Name = t.Name,
-                EventDate = t.Date
-            });
+            return tournamentRepository.List().Select(t => t.ToTournamentDto());
         }
 
         [HttpGet("{id}")]
@@ -37,7 +33,7 @@ namespace KIB_Service.Controllers
                 return NotFound();
             }
 
-            return Ok(tournament);
+            return Ok(tournament.ToTournamentDto());
         }
 
         [HttpPost("")]
@@ -50,7 +46,7 @@ namespace KIB_Service.Controllers
 
             var tournament = tournamentRepository.Create(value);
 
-            return Ok(tournament);
+            return Ok(tournament.ToTournamentDto());
         }
 
         [HttpGet("{tournamentId}/matchups")]
