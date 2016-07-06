@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using System.Collections;
 
 namespace KIB_Service.Tests
 {
@@ -98,7 +99,7 @@ namespace KIB_Service.Tests
         public void FetchingMatchupsWhenThereIsNoActiveRoundShouldReturnNoContent()
         {
             var mockRepository = new Mock<IRoundRepository>();
-            mockRepository.Setup(r => r.GetCurrentRound(It.IsAny<int>()))
+            mockRepository.Setup(r => r.GetAllMatchups(It.IsAny<int>()))
                           .Returns(() => null);
 
             var ctrl = new TournamentController(null, null, mockRepository.Object);
@@ -112,22 +113,19 @@ namespace KIB_Service.Tests
         public void FetchingMatchupsWhenThereIsAnActiveRoundShouldReturnICollectionOfMatchup()
         {
             var mockRepository = new Mock<IRoundRepository>();
-            mockRepository.Setup(r => r.GetCurrentRound(It.IsAny<int>()))
-                          .Returns(new Round
+            mockRepository.Setup(r => r.GetAllMatchups(It.IsAny<int>()))
+                          .Returns(() => new List<IGrouping<int, Matchup>>
                           {
-                              RoundNumber = 1,
-                              TournamentId = 1,
-                              Id = 1,
-                              Matchups = new List<Matchup>
+                              new Grouping<int, Matchup>(1, new List<Matchup>
                               {
                                   new Matchup
                                   {
                                       Id = 1,
+                                      RoundId= 1,
                                       Player1Id = 1,
-                                      Player2Id = 2,
-                                      RoundId = 1
+                                      Player2Id = 2
                                   }
-                              }
+                              })
                           });
 
             var ctrl = new TournamentController(null, null, mockRepository.Object);
@@ -135,10 +133,40 @@ namespace KIB_Service.Tests
             var result = ctrl.GetMatchups(1);
 
             Assert.IsAssignableFrom<OkObjectResult>(result);
-            Assert.IsAssignableFrom<ICollection<Matchup>>((result as OkObjectResult).Value);
+            Assert.IsAssignableFrom<IEnumerable<IGrouping<int, Matchup>>>((result as OkObjectResult).Value);
 
-            var list = (result as OkObjectResult).Value as ICollection<Matchup>;
+            var list = (result as OkObjectResult).Value as IEnumerable < IGrouping < int,Matchup>>;
             Assert.NotEmpty(list);
+        }
+    }
+
+
+    public class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
+    {
+        private readonly TKey key;
+        private readonly IEnumerable<TElement> values;
+
+        public Grouping(TKey key, IEnumerable<TElement> values)
+        {
+            if (values == null)
+                throw new ArgumentNullException("values");
+            this.key = key;
+            this.values = values;
+        }
+
+        public TKey Key
+        {
+            get { return key; }
+        }
+
+        public IEnumerator<TElement> GetEnumerator()
+        {
+            return values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

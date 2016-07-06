@@ -10,5 +10,6 @@ namespace KIB_Service.Repositories.Interfaces
     public interface IPlayerRepository
     {
         Player Add(int tournamentId, PlayerDto data);
+        ICollection<Player> GetAllInTournament(int tournamentId);
     }
 }

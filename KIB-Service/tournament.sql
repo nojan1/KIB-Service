@@ -9,7 +9,7 @@ create table Player (
 	TournamentId int not null,
 	Affiliation varchar(50) null,
 	Name varchar(50) not null,
-	Active bit not null,
+	Active tinyint not null,
 
 	foreign key (TournamentId)
 		references Tournament(Id)

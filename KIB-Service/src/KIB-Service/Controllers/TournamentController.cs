@@ -58,13 +58,13 @@ namespace KIB_Service.Controllers
         [HttpGet("{tournamentId}/matchups")]
         public IActionResult GetMatchups(int tournamentId)
         {
-            var round = roundRepository.GetCurrentRound(tournamentId);
-            if(round == null)
+            var matchups = roundRepository.GetAllMatchups(tournamentId);
+            if(matchups == null || !matchups.Any())
             {
                 return NoContent();
             }
 
-            return Ok(round.Matchups);
+            return Ok(matchups);
         }
 
         [HttpGet("{tournamentId}/score")]
@@ -84,6 +84,13 @@ namespace KIB_Service.Controllers
             var createdPlayer = playerRepository.Add(tournamentId, player);
 
             return Ok(createdPlayer.ToPlayerDto());
+        }
+
+        [HttpGet("{tournamentId}/Player")]
+        public IActionResult GetPlayers(int tournamentId)
+        {
+            var players = playerRepository.GetAllInTournament(tournamentId);
+            return Ok(players.Select(p => p.ToPlayerDto()));
         }
     }
 }

@@ -30,6 +30,11 @@ namespace KIB_Service.Repositories
             }, UnpackPlayer);
         }
 
+        public ICollection<Player> GetAllInTournament(int tournamentId)
+        {
+            return dbHelper.Query("select Id, Name, Affiliation, Active from Player where TournamentId = " + tournamentId, UnpackPlayer);
+        }
+
         private Player UnpackPlayer(DbDataReader reader)
         {
             return new Player
@@ -37,7 +42,7 @@ namespace KIB_Service.Repositories
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
                 Affiliation = reader.GetString(2),
-                Active = reader.GetBoolean(3)
+                Active = Convert.ToBoolean(reader.GetValue(3))
             };
         }
     }
