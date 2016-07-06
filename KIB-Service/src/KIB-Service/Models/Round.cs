@@ -7,6 +7,11 @@ namespace KIB_Service.Models
 {
     public class Round
     {
+        public int Id { get; set; }
+        public int TournamentId { get; set; }
 
+        public int RoundNumber { get; set; }
+
+        public ICollection<Matchup> Matchups { get; set; }
     }
 }

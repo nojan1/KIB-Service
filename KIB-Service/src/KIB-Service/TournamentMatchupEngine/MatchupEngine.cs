@@ -9,7 +9,7 @@ namespace KIB_Service.TournamentMatchupEngine
 {
     public class MatchupEngine
     {
-        public ICollection<Matchup> GenerateMatchup(ICollection<Contestant> contestants)
+        public ICollection<ContestantMatchup> GenerateMatchup(ICollection<Contestant> contestants)
         {
             if(contestants.Count <= 1)
             {
@@ -32,9 +32,9 @@ namespace KIB_Service.TournamentMatchupEngine
             }
         }
         
-        private ICollection<Matchup> MatchupRound1(ICollection<Contestant> contestants)
+        private ICollection<ContestantMatchup> MatchupRound1(ICollection<Contestant> contestants)
         {
-            var returnValue = new List<Matchup>();
+            var returnValue = new List<ContestantMatchup>();
 
             //First round, order by affiliation and randomize
             //In theory this should reduce the likelyhood off people from same affiliation meeting each other
@@ -44,7 +44,7 @@ namespace KIB_Service.TournamentMatchupEngine
 
             while (shuffledContestants.Count >= 2)
             {
-                returnValue.Add(new Matchup
+                returnValue.Add(new ContestantMatchup
                 {
                     Contestant1 = shuffledContestants[0],
                     Contestant2 = shuffledContestants[1],
@@ -57,7 +57,7 @@ namespace KIB_Service.TournamentMatchupEngine
             return returnValue;
         }
 
-        private ICollection<Matchup> MatchupRoundX(ICollection<Contestant> contestants)
+        private ICollection<ContestantMatchup> MatchupRoundX(ICollection<Contestant> contestants)
         {
             var scoredMatchups = new List<MatchupScore>();
 
@@ -78,7 +78,7 @@ namespace KIB_Service.TournamentMatchupEngine
             return bestMatchup;
         }
 
-        private int CalculateScoreForMatchup(IEnumerable<Matchup> matchups, ICollection<Contestant> allContestants)
+        private int CalculateScoreForMatchup(IEnumerable<ContestantMatchup> matchups, ICollection<Contestant> allContestants)
         {
             int score = 0;
 
@@ -116,7 +116,7 @@ namespace KIB_Service.TournamentMatchupEngine
             return score;
         }
 
-        private IEnumerable<IEnumerable<Matchup>> GenerateAllPossibleMatchups(ICollection<Contestant> contestants)
+        private IEnumerable<IEnumerable<ContestantMatchup>> GenerateAllPossibleMatchups(ICollection<Contestant> contestants)
         {
             var allMatchups = (from m in Enumerable.Range(0, 1 << contestants.Count)
                     select
@@ -124,7 +124,7 @@ namespace KIB_Service.TournamentMatchupEngine
                         where (m & (1 << i)) != 0
                         select contestants.ElementAt(i))
                     .Where(x => x.Count() == 2)
-                    .Select(x => new Matchup
+                    .Select(x => new ContestantMatchup
                     {
                         Contestant1 = x.ElementAt(0),
                         Contestant2 = x.ElementAt(1)
@@ -132,10 +132,10 @@ namespace KIB_Service.TournamentMatchupEngine
                     .ToList();
 
 
-            var returnValue = new List<IEnumerable<Matchup>>();
+            var returnValue = new List<IEnumerable<ContestantMatchup>>();
             while (allMatchups.Any())
             {
-                var workingSet = new List<Matchup>();
+                var workingSet = new List<ContestantMatchup>();
                 foreach(var contestant in contestants)
                 {
                     if(!workingSet.Any(m => m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier))

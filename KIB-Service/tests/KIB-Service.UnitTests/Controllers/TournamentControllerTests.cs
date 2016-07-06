@@ -1,6 +1,7 @@
 ﻿using KIB_Service.Controllers;
 using KIB_Service.Models;
 using KIB_Service.Models.dto;
+using KIB_Service.Repositories;
 using KIB_Service.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -22,7 +23,7 @@ namespace KIB_Service.Tests
             mockRepository.Setup(r => r.List())
                           .Returns(new List<Tournament>());
 
-            var ctrl = new TournamentController(mockRepository.Object, null);
+            var ctrl = new TournamentController(mockRepository.Object, null, null);
 
             var result = ctrl.Get();
 
@@ -34,7 +35,7 @@ namespace KIB_Service.Tests
         public void CallingGetOnNonExistingIdShouldReturnNotFound()
         {
             var mockRepository = new Mock<ITournamentRepository>();
-            var ctrl = new TournamentController(mockRepository.Object, null);
+            var ctrl = new TournamentController(mockRepository.Object, null, null);
 
             var result = ctrl.Get(-1);
 
@@ -48,7 +49,7 @@ namespace KIB_Service.Tests
             mockRepository.Setup(r => r.Get(It.Is<int>(x => x == 1)))
                           .Returns(new Tournament());
 
-            var ctrl = new TournamentController(mockRepository.Object, null);
+            var ctrl = new TournamentController(mockRepository.Object, null, null);
 
             var result = ctrl.Get(1);
 
@@ -61,7 +62,7 @@ namespace KIB_Service.Tests
         {
             var mockRepository = new Mock<ITournamentRepository>();
 
-            var ctrl = new TournamentController(mockRepository.Object, null);
+            var ctrl = new TournamentController(mockRepository.Object, null, null);
             ctrl.ModelState.AddModelError("", "error");
 
             var result = ctrl.CreateTournament(new TournamentDto());
@@ -82,15 +83,62 @@ namespace KIB_Service.Tests
             mockRepository.Setup(r => r.Add(It.IsAny<TournamentDto>()))
                           .Returns<TournamentDto>((data) => new Tournament { Name = data.Name, Date = data.EventDate.Value });
 
-            var ctrl = new TournamentController(mockRepository.Object, null);
+            var ctrl = new TournamentController(mockRepository.Object, null, null);
 
             var result = ctrl.CreateTournament(model);
 
             Assert.IsAssignableFrom<OkObjectResult>(result);
 
-            var tournament = (result as OkObjectResult).Value as Tournament;
+            var tournament = (result as OkObjectResult).Value as TournamentDto;
             Assert.Equal(model.Name, tournament.Name);
-            Assert.Equal(model.EventDate.Value, tournament.Date);
+            Assert.Equal(model.EventDate.Value, tournament.EventDate);
+        }
+
+        [Fact]
+        public void FetchingMatchupsWhenThereIsNoActiveRoundShouldReturnNoContent()
+        {
+            var mockRepository = new Mock<IRoundRepository>();
+            mockRepository.Setup(r => r.GetCurrentRound(It.IsAny<int>()))
+                          .Returns(() => null);
+
+            var ctrl = new TournamentController(null, null, mockRepository.Object);
+
+            var result = ctrl.GetMatchups(1);
+
+            Assert.IsAssignableFrom<NoContentResult>(result);
+        }
+
+        [Fact]
+        public void FetchingMatchupsWhenThereIsAnActiveRoundShouldReturnICollectionOfMatchup()
+        {
+            var mockRepository = new Mock<IRoundRepository>();
+            mockRepository.Setup(r => r.GetCurrentRound(It.IsAny<int>()))
+                          .Returns(new Round
+                          {
+                              RoundNumber = 1,
+                              TournamentId = 1,
+                              Id = 1,
+                              Matchups = new List<Matchup>
+                              {
+                                  new Matchup
+                                  {
+                                      Id = 1,
+                                      Player1Id = 1,
+                                      Player2Id = 2,
+                                      RoundId = 1
+                                  }
+                              }
+                          });
+
+            var ctrl = new TournamentController(null, null, mockRepository.Object);
+
+            var result = ctrl.GetMatchups(1);
+
+            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsAssignableFrom<ICollection<Matchup>>((result as OkObjectResult).Value);
+
+            var list = (result as OkObjectResult).Value as ICollection<Matchup>;
+            Assert.NotEmpty(list);
         }
     }
 }

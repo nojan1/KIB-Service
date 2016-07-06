@@ -14,3 +14,4 @@ namespace KIB_Service.Models
         public Matchup Matchup { get; set; }
     }
 }
+            

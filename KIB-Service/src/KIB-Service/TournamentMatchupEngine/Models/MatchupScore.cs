@@ -7,7 +7,7 @@ namespace KIB_Service.TournamentMatchupEngine.Models
 {
     public class MatchupScore
     {
-        public ICollection<Matchup> Matchups { get; set; }
+        public ICollection<ContestantMatchup> Matchups { get; set; }
         public int Score { get; set; }
     }
 }

@@ -107,7 +107,7 @@ namespace KIB_Service.Tests
                         (ContestantInMatchup(2, matchups.Last()) && ContestantInMatchup(3, matchups.Last()))));
         }
 
-        private bool ContestantInMatchup(int identifier, Matchup matchup)
+        private bool ContestantInMatchup(int identifier, ContestantMatchup matchup)
         {
             return matchup.Contestant1.Identifier == identifier || matchup.Contestant2.Identifier == identifier;
         }

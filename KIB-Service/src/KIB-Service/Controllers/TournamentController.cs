@@ -13,12 +13,15 @@ namespace KIB_Service.Controllers
     {
         private ITournamentRepository tournamentRepository;
         private IPlayerRepository playerRepository;
+        private IRoundRepository roundRepository;
 
         public TournamentController(ITournamentRepository tournamentRepository,
-                                    IPlayerRepository playerRepository)
+                                    IPlayerRepository playerRepository,
+                                    IRoundRepository roundRepository)
         {
             this.tournamentRepository = tournamentRepository;
             this.playerRepository = playerRepository;
+            this.roundRepository = roundRepository;
         }
 
         [HttpGet]
@@ -55,7 +58,13 @@ namespace KIB_Service.Controllers
         [HttpGet("{tournamentId}/matchups")]
         public IActionResult GetMatchups(int tournamentId)
         {
-            throw new NotImplementedException();
+            var round = roundRepository.GetCurrentRound(tournamentId);
+            if(round == null)
+            {
+                return NoContent();
+            }
+
+            return Ok(round.Matchups);
         }
 
         [HttpGet("{tournamentId}/score")]
@@ -76,6 +85,5 @@ namespace KIB_Service.Controllers
 
             return Ok(createdPlayer.ToPlayerDto());
         }
-
     }
 }

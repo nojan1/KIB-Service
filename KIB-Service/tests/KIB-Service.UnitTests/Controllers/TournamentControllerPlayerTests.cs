@@ -27,7 +27,7 @@ namespace KIB_Service.Tests.Controllers
             mockRepository.Setup(r => r.Add(It.IsAny<int>(), It.IsAny<PlayerDto>()))
                           .Returns<int, PlayerDto>((tournamentId, data) => new Player { Name = data.Name, Affiliation = data.Affiliation, Active = true });
 
-            var ctrl = new TournamentController(null, mockRepository.Object);
+            var ctrl = new TournamentController(null, mockRepository.Object, null);
 
             var result = ctrl.AddPlayer(1, model);
 
@@ -42,7 +42,7 @@ namespace KIB_Service.Tests.Controllers
         [Fact]
         public void CallingAddPlayerWithInvalidDataShouldReturBadRequest()
         {
-            var ctrl = new TournamentController(null, null);
+            var ctrl = new TournamentController(null, null, null);
             ctrl.ModelState.AddModelError("", "Error!");
 
             var result = ctrl.AddPlayer(1, null);

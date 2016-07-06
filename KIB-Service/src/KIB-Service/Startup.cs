@@ -45,6 +45,7 @@ namespace KIB_Service
             services.AddSingleton<ConnectionStringOption>(new ConnectionStringOption { ConnectionString = Configuration.GetConnectionString("DefaultConnection") });
             services.AddScoped<ITournamentRepository, TournamentRepository>();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<IRoundRepository, RoundRepository>();
             services.AddScoped<DBHelper>();
         }
 
