@@ -53,10 +53,10 @@ namespace KIB_Service.Helpers
 
         public void Insert(string tableName, IEnumerable<KeyValuePair<string, object>> columnValues)
         {
-            Insert<object>(tableName, columnValues, null);
+            Insert<object>(tableName, columnValues, null, string.Empty);
         }
 
-        public T Insert<T>(string tableName, IEnumerable<KeyValuePair<string, object>> columnValues, Func<DbDataReader, T> unpackFunction)
+        public T Insert<T>(string tableName, IEnumerable<KeyValuePair<string, object>> columnValues, Func<DbDataReader, T> unpackFunction, string columns)
         {
             var conn = Connection;
 
@@ -81,12 +81,13 @@ namespace KIB_Service.Helpers
 
                 conn.Open();
 
-                var id = cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
+                var id = (cmd as MySqlCommand).LastInsertedId;
                 conn.Close();
 
                 if (unpackFunction != null)
                 {
-                    string getSql = "select * from " + tableName + " where id = " + id.ToString() + " limit 1";
+                    string getSql = "select " + columns + " from " + tableName + " where id = " + id.ToString() + " limit 1";
                     return Get(getSql, unpackFunction);
                 }
                 else

@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "MySqlConnector": "0.1.0-alpha02",
+    //"MySqlConnector": "0.1.0-alpha06",
+    "SapientGuardian.MySql.Data": "*",
     "Microsoft.AspNetCore.Mvc": "1.0.0",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",

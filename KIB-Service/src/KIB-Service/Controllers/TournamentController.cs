@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using KIB_Service.Models.dto;
 using KIB_Service.Repositories.Interfaces;
+using KIB_Service.TournamentMatchupEngine.Interface;
+using KIB_Service.Models;
+using KIB_Service.TournamentMatchupEngine;
 
 namespace KIB_Service.Controllers
 {
@@ -14,14 +17,17 @@ namespace KIB_Service.Controllers
         private ITournamentRepository tournamentRepository;
         private IPlayerRepository playerRepository;
         private IRoundRepository roundRepository;
+        private IMatchupManager matchupManger;
 
         public TournamentController(ITournamentRepository tournamentRepository,
                                     IPlayerRepository playerRepository,
-                                    IRoundRepository roundRepository)
+                                    IRoundRepository roundRepository,
+                                    IMatchupManager matchupManger)
         {
             this.tournamentRepository = tournamentRepository;
             this.playerRepository = playerRepository;
             this.roundRepository = roundRepository;
+            this.matchupManger = matchupManger;
         }
 
         [HttpGet]
@@ -65,6 +71,22 @@ namespace KIB_Service.Controllers
             }
 
             return Ok(matchups);
+        }
+
+        [HttpPost("{tournamentId}/matchups")]
+        public IActionResult GenerateMatchupsForNextRound(int tournamentId)
+        {
+            Round round;
+            try
+            {
+                round = matchupManger.GenerateMatchups(tournamentId);
+            }
+            catch (CantGenerateNewRoundException)
+            {
+                return BadRequest();
+            }
+
+            return Ok(round);
         }
 
         [HttpGet("{tournamentId}/score")]

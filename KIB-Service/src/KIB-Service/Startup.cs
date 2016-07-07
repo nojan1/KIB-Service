@@ -14,6 +14,8 @@ using KIB_Service.Helpers;
 using System.Data.Common;
 using MySql.Data.MySqlClient;
 using KIB_Service.Filters;
+using KIB_Service.TournamentMatchupEngine.Interface;
+using KIB_Service.TournamentMatchupEngine;
 
 namespace KIB_Service
 {
@@ -47,6 +49,7 @@ namespace KIB_Service
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IRoundRepository, RoundRepository>();
             services.AddScoped<DBHelper>();
+            services.AddScoped<IMatchupManager, MatchupManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

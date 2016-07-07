@@ -27,7 +27,7 @@ namespace KIB_Service.Repositories
                 new KeyValuePair<string, object>("Affiliation", data.Affiliation),
                 new KeyValuePair<string, object>("TournamentId", tournamentId),
                 new KeyValuePair<string, object>("Active", true)
-            }, UnpackPlayer);
+            }, UnpackPlayer, "Id, Name, Affiliation, Active");
         }
 
         public ICollection<Player> GetAllInTournament(int tournamentId)

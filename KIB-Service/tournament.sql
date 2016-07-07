@@ -49,7 +49,12 @@ create table Matchup (
 create table Score (
 	Id int auto_increment primary key,
 	MatchupId int not null,
+	PlayerId int not null,
 	Amount int not null,
+
+	foreign key (PlayerId)
+		references Player(Id)
+		on delete no action,
 
 	foreign key (MatchupId)
 		references Matchup(Id)

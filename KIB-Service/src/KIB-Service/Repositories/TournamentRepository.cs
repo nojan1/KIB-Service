@@ -28,7 +28,7 @@ namespace KIB_Service.Repositories
                 new KeyValuePair<string, object>("Date", data.EventDate.Value.ToString())
             };
 
-            return dbHelper.Insert("Tournament", arguments, UnpackTournament);
+            return dbHelper.Insert("Tournament", arguments, UnpackTournament, "Id, Name, Date");
         }
 
         public Tournament Get(int id)

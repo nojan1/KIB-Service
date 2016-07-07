@@ -12,5 +12,6 @@ namespace KIB_Service.Repositories.Interfaces
         Round GetCurrentRound(int tournamentId);
         IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId);
         void SetScore(int matchupId, int player1Score, int player2Score);
+        ICollection<Score> GetScoresForTournament(int tournamentId);
     }
 }

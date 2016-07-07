@@ -20,7 +20,14 @@ namespace KIB_Service.Repositories
 
         public Round Add(Round newRound)
         {
-            throw new NotImplementedException();
+            return dbHelper.Insert("Round",
+                                   new List<KeyValuePair<string, object>>
+                                   {
+                                       new KeyValuePair<string, object>("RoundNumber", newRound.RoundNumber),
+                                       new KeyValuePair<string, object>("TournamentId", newRound.TournamentId)
+                                   },
+                                   UnpackRound,
+                                   "Id, RoundNumber, TournamentId");
         }
 
         public IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId)
@@ -51,6 +58,24 @@ namespace KIB_Service.Repositories
             round.Matchups = dbHelper.Query(@"select Id, Player1Id, Player2Id, RoundId from Matchup where RoundId = " + round.Id, UnpackMatchup);
 
             return round;
+        }
+
+        public ICollection<Score> GetScoresForTournament(int tournamentId)
+        {
+            return dbHelper.Query(@"select s.Id, s.MatchupId, s.Amount, s.PlayerId from Score as s
+                                    inner join Matchup as m on s.MatchupId = m.Id
+                                    inner join Round as r on m.RoundId = r.Id
+                                    where r.TournamentId = " + tournamentId, 
+                (reader) =>
+            {
+                return new Score
+                {
+                    Id = reader.GetInt32(0),
+                    MatchupId = reader.GetInt32(1),
+                    Amount = reader.GetInt32(2),
+                    PlayerId = reader.GetInt32(3)
+                };
+            });
         }
 
         public void SetScore(int matchupId, int player1Score, int player2Score)

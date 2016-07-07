@@ -11,19 +11,19 @@ namespace KIB_Service.Helpers
 
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> self)
         {
-            var source = self.ToArray();
-            var destination = new T[source.Length];
-
-            for(int i = 0; i < source.Length; i++)
+            var list = self.ToArray();
+       
+            int n = list.Length;
+            while (n > 1)
             {
-                var swapWith = rnd.Next(0, source.Length);
-                var backup = destination[i];
-
-                destination[i] = source[swapWith];
-                source[swapWith] = backup;
+                n--;
+                int k = rnd.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
             }
 
-            return destination;
+            return list;
         }
     }
 }
