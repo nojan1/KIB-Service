@@ -79,12 +79,12 @@ namespace KIB_Service.Tests
             var model = new TournamentDto
             {
                 Name = "Test tournament",
-                EventDate = DateTimeOffset.Now.AddDays(2)
+                Date = DateTimeOffset.Now.AddDays(2)
             };
 
             var mockRepository = new Mock<ITournamentRepository>();
             mockRepository.Setup(r => r.Add(It.IsAny<TournamentDto>()))
-                          .Returns<TournamentDto>((data) => new Tournament { Name = data.Name, Date = data.EventDate.Value });
+                          .Returns<TournamentDto>((data) => new Tournament { Name = data.Name, Date = data.Date.Value });
 
             var ctrl = new TournamentController(mockRepository.Object, null, null, null);
 
@@ -94,7 +94,7 @@ namespace KIB_Service.Tests
 
             var tournament = (result as OkObjectResult).Value as TournamentDto;
             Assert.Equal(model.Name, tournament.Name);
-            Assert.Equal(model.EventDate.Value, tournament.EventDate);
+            Assert.Equal(model.Date.Value, tournament.Date);
         }
 
         [Fact]
@@ -135,9 +135,9 @@ namespace KIB_Service.Tests
             var result = ctrl.GetMatchups(1);
 
             Assert.IsAssignableFrom<OkObjectResult>(result);
-            Assert.IsAssignableFrom<IEnumerable<IGrouping<int, Matchup>>>((result as OkObjectResult).Value);
+            Assert.IsAssignableFrom<IEnumerable<RoundMatchupDto>>((result as OkObjectResult).Value);
 
-            var list = (result as OkObjectResult).Value as IEnumerable<IGrouping<int, Matchup>>;
+            var list = (result as OkObjectResult).Value as IEnumerable<RoundMatchupDto>;
             Assert.NotEmpty(list);
         }
 

@@ -70,7 +70,17 @@ namespace KIB_Service.Controllers
                 return NoContent();
             }
 
-            return Ok(matchups);
+            return Ok(matchups.Select(x => new RoundMatchupDto
+            {
+                RoundNumber = x.Key,
+                RoundId = x.Any() ? x.First().RoundId : -1,
+                Matchups = x.Select(y => new MatchupDto
+                {
+                    TableNumber = y.TableNumber,
+                    Player1Id = y.Player1Id,
+                    Player2Id = y.Player2Id
+                }).ToList()
+            }));
         }
 
         [HttpPost("{tournamentId}/matchups")]

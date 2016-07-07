@@ -64,6 +64,7 @@ namespace KIB_Service.TournamentMatchupEngine
             roundRepository.AddMatchupsToRound(round.Id, contestantMatchups.Select(x => new Matchup
             {
                 RoundId = round.Id,
+                TableNumber = x.Table,
                 Player1Id = x.Contestant1.Identifier,
                 Player2Id = x.Contestant2.Identifier
             }).ToList());

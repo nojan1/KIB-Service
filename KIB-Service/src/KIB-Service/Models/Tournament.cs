@@ -20,7 +20,7 @@ namespace KIB_Service.Models
             {
                 Id = Id,
                 Name = Name,
-                EventDate = Date
+                Date = Date
             };
         }
     }

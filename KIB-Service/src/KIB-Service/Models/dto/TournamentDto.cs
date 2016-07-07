@@ -13,6 +13,6 @@ namespace KIB_Service.Models.dto
         public string Name { get; set; }
 
         [Required]
-        public DateTimeOffset? EventDate { get; set; }
+        public DateTimeOffset? Date { get; set; }
     }
 }

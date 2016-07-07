@@ -25,7 +25,7 @@ namespace KIB_Service.Repositories
             var arguments = new List<KeyValuePair<string, object>>
             {
                 new KeyValuePair<string, object>("Name", data.Name),
-                new KeyValuePair<string, object>("Date", data.EventDate.Value.ToString())
+                new KeyValuePair<string, object>("Date", data.Date.Value.ToString())
             };
 
             return dbHelper.Insert("Tournament", arguments, UnpackTournament, "Id, Name, Date");

@@ -38,6 +38,7 @@ namespace KIB_Service.Repositories
                                 new List<KeyValuePair<string, object>>
                                 {
                                     new KeyValuePair<string, object>("RoundId", roundId),
+                                    new KeyValuePair<string, object>("TableNumber", matchup.TableNumber),
                                     new KeyValuePair<string, object>("Player1Id", matchup.Player1Id),
                                     new KeyValuePair<string, object>("Player2Id", matchup.Player2Id)
                                 });
@@ -46,14 +47,14 @@ namespace KIB_Service.Repositories
 
         public IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId)
         {
-            var matchups = dbHelper.Query(@"select m.Id, m.Player1Id, m.Player2Id, m.RoundId, r.RoundNumber from Matchup as m 
+            var matchups = dbHelper.Query(@"select m.Id, m.Player1Id, m.Player2Id, m.RoundId, m.TableNumber, r.RoundNumber from Matchup as m 
                                             inner join Round as r on r.Id = m.RoundId
                                             where r.TournamentId = " + tournamentId, 
                            (reader) =>
                            {
                                return new
                                {
-                                   RoundNumber = reader.GetInt32(4),
+                                   RoundNumber = reader.GetInt32(5),
                                    Matchup = UnpackMatchup(reader)
                                };
                            });
@@ -69,7 +70,7 @@ namespace KIB_Service.Repositories
             if (round == null)
                 return null;
 
-            round.Matchups = dbHelper.Query(@"select Id, Player1Id, Player2Id, RoundId from Matchup where RoundId = " + round.Id, UnpackMatchup);
+            round.Matchups = dbHelper.Query(@"select Id, Player1Id, Player2Id, RoundId, TableNumber from Matchup where RoundId = " + round.Id, UnpackMatchup);
 
             return round;
         }
@@ -104,7 +105,8 @@ namespace KIB_Service.Repositories
                 Id = reader.GetInt32(0),
                 RoundId = reader.GetInt32(3),
                 Player1Id = reader.GetInt32(1),
-                Player2Id = reader.GetInt32(2)
+                Player2Id = reader.GetInt32(2),
+                TableNumber = reader.GetInt32(4)
             };
         }
 

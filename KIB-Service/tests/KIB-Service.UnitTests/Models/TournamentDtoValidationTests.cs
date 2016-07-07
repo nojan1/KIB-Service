@@ -22,7 +22,7 @@ namespace KIB_Service.Tests.Models
             var model = new TournamentDto
             {
                 Name = name,
-                EventDate = DateTimeOffset.TryParse(eventDateString, out eventDate) ? new DateTimeOffset?(eventDate) : null
+                Date = DateTimeOffset.TryParse(eventDateString, out eventDate) ? new DateTimeOffset?(eventDate) : null
             };
 
             var context = new ValidationContext(model, null, null);
