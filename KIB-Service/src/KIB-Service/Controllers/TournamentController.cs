@@ -76,6 +76,7 @@ namespace KIB_Service.Controllers
                 RoundId = x.Any() ? x.First().RoundId : -1,
                 Matchups = x.Select(y => new MatchupDto
                 {
+                    Id = y.Id,
                     TableNumber = y.TableNumber,
                     Player1Id = y.Player1Id,
                     Player2Id = y.Player2Id
@@ -123,6 +124,19 @@ namespace KIB_Service.Controllers
         {
             var players = playerRepository.GetAllInTournament(tournamentId);
             return Ok(players.Select(p => p.ToPlayerDto()));
+        }
+
+        [HttpPost("{tournamentId}/score/{matchupId}")]
+        public IActionResult ReportScore(int tournamentId, int matchupId, [FromBody]MatchupDto score)
+        {
+            if((score.Player1Score == 0 && score.Player2Score == 0) || score.Player1Score < 0 ||score.Player2Score < 0)
+            {
+                return BadRequest();
+            }
+
+            roundRepository.SetScore(matchupId, score.Player1Score, score.Player2Score);
+
+            return Ok();
         }
     }
 }

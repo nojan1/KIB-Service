@@ -7,6 +7,7 @@ namespace KIB_Service.Models.dto
 {
     public class MatchupDto
     {
+        public int Id { get; set; }
         public int TableNumber { get; set; }
         public int Player1Id { get; set; }
         public int Player2Id { get; set; }

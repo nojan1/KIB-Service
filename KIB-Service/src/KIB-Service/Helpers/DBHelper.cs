@@ -96,5 +96,45 @@ namespace KIB_Service.Helpers
                 }
             }
         }
+
+        public void Update(string tableName, IEnumerable<KeyValuePair<string, object>> columnValues, KeyValuePair<string, object>? key)
+        {
+            var conn = Connection;
+
+            var sql = "update " + tableName + " set ";
+            sql += string.Join(",", columnValues.Select(v => v.Key + "=@" + v.Key));
+
+            if(key != null)
+            {
+                sql += " where " + key.Value.Key + "=@" + key.Value.Key;
+            }
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+
+                foreach (var columnValue in columnValues)
+                {
+                    var dbParam = cmd.CreateParameter();
+                    dbParam.ParameterName = columnValue.Key;
+                    dbParam.Value = columnValue.Value;
+
+                    cmd.Parameters.Add(dbParam);
+                }
+
+                if(key != null)
+                {
+                    var dbParam = cmd.CreateParameter();
+                    dbParam.ParameterName = key.Value.Key;
+                    dbParam.Value = key.Value.Value;
+
+                    cmd.Parameters.Add(dbParam);
+                }
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+            }
     }
 }

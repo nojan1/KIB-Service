@@ -95,7 +95,49 @@ namespace KIB_Service.Repositories
 
         public void SetScore(int matchupId, int player1Score, int player2Score)
         {
-            throw new NotImplementedException();
+            var updateScore = new Action<int, int>((playerId, amount) =>
+            {
+                var existingScore = dbHelper.Get("select Id, MatchupId, PlayerId, Amount from Score where MatchupId = " + matchupId + " and PlayerId = " + playerId,
+                (reader) =>
+                {
+                    return new Score
+                    {
+                        Id = reader.GetInt32(0),
+                        MatchupId = reader.GetInt32(1),
+                        PlayerId = reader.GetInt32(2),
+                        Amount = reader.GetInt32(3)
+                    };
+                });
+
+                if(existingScore == null)
+                {
+                    dbHelper.Insert("Score",
+                                    new List<KeyValuePair<string, object>>
+                                    {
+                                        new KeyValuePair<string, object>("MatchupId", matchupId),
+                                        new KeyValuePair<string, object>("PlayerId", playerId),
+                                        new KeyValuePair<string, object>("Amount", amount)
+                                    });
+                }
+                else
+                {
+                    dbHelper.Update("Score",
+                                    new List<KeyValuePair<string, object>>
+                                    {
+                                        new KeyValuePair<string, object>("Amount", amount)
+                                    },
+                                    new KeyValuePair<string, object>("Id", existingScore.Id));
+                }
+            });
+
+            var matchup = dbHelper.Get("select Id, Player2Id, Player1Id, RoundId, TableNumber from matchup where Id = " + matchupId, UnpackMatchup);
+            if(matchup == null)
+            {
+                throw new Exception("No such matchup!");
+            }
+
+            updateScore(matchup.Player1Id, player1Score);
+            updateScore(matchup.Player2Id, player2Score);
         }
 
         private Matchup UnpackMatchup(DbDataReader reader)
@@ -103,9 +145,9 @@ namespace KIB_Service.Repositories
             return new Matchup
             {
                 Id = reader.GetInt32(0),
-                RoundId = reader.GetInt32(3),
                 Player1Id = reader.GetInt32(1),
                 Player2Id = reader.GetInt32(2),
+                RoundId = reader.GetInt32(3),
                 TableNumber = reader.GetInt32(4)
             };
         }
