@@ -87,14 +87,8 @@ namespace KIB_Service.TournamentMatchupEngine
                 //If it is the best score match
                 int scoreDifference = Math.Abs(matchup.Contestant1.Score - matchup.Contestant2.Score);
                 var contest1ScoreDifference = allContestants.Where(c => c.Identifier != matchup.Contestant1.Identifier).Select(c => Math.Abs(c.Score - matchup.Contestant1.Score)).Min();
-                var contest2ScoreDifference = allContestants.Where(c => c.Identifier != matchup.Contestant2.Identifier).Select(c => Math.Abs(c.Score - matchup.Contestant2.Score)).Min();
 
                 if(scoreDifference == contest1ScoreDifference)
-                {
-                    score += 1;
-                }
-
-                if (scoreDifference == contest2ScoreDifference)
                 {
                     score += 1;
                 }
