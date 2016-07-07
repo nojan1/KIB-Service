@@ -61,14 +61,12 @@ namespace KIB_Service.TournamentMatchupEngine
                 TournamentId = tournamentId
             });
 
-            var matchups = contestantMatchups.Select(x => new Matchup
+            roundRepository.AddMatchupsToRound(round.Id, contestantMatchups.Select(x => new Matchup
             {
                 RoundId = round.Id,
                 Player1Id = x.Contestant1.Identifier,
                 Player2Id = x.Contestant2.Identifier
-            }).ToList();
-
-            //TODO: Add matchups to DB
+            }).ToList());
 
             return roundRepository.GetCurrentRound(tournamentId);
         }

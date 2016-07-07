@@ -30,6 +30,20 @@ namespace KIB_Service.Repositories
                                    "Id, RoundNumber, TournamentId");
         }
 
+        public void AddMatchupsToRound(int roundId, ICollection<Matchup> matchups)
+        {
+            foreach(var matchup in matchups)
+            {
+                dbHelper.Insert("Matchup",
+                                new List<KeyValuePair<string, object>>
+                                {
+                                    new KeyValuePair<string, object>("RoundId", roundId),
+                                    new KeyValuePair<string, object>("Player1Id", matchup.Player1Id),
+                                    new KeyValuePair<string, object>("Player2Id", matchup.Player2Id)
+                                });
+            }
+        }
+
         public IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId)
         {
             var matchups = dbHelper.Query(@"select m.Id, m.Player1Id, m.Player2Id, m.RoundId, r.RoundNumber from Matchup as m 

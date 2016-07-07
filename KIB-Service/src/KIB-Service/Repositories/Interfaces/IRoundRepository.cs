@@ -9,6 +9,7 @@ namespace KIB_Service.Repositories.Interfaces
     public interface IRoundRepository
     {
         Round Add(Round newRound);
+        void AddMatchupsToRound(int roundId, ICollection<Matchup> matchups);
         Round GetCurrentRound(int tournamentId);
         IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId);
         void SetScore(int matchupId, int player1Score, int player2Score);
