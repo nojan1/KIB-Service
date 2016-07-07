@@ -28,9 +28,9 @@ namespace KIB_Service.TournamentMatchupEngine
                 return true;
 
             var scores = roundRepository.GetScoresForTournament(tournamentId);
+            var scoresForCurrentRound = scores.Where(s => currentRound.Matchups.Select(m => m.Id).Contains(s.MatchupId)).ToList();
 
-
-            return false;
+            return scoresForCurrentRound.Count == currentRound.Matchups.Count * 2;
         }
 
         public Round GenerateMatchups(int tournamentId)
