@@ -110,12 +110,13 @@ namespace KIB_Service.Controllers
             var scores = roundRepository.GetScoresForTournament(tournamentId);
             var players = playerRepository.GetAllInTournament(tournamentId);
 
-            return Ok(scores.Select(s => new PlayerScoreDto
+            return Ok(players.Select(p => new PlayerScoreDto
             {
-                PlayerId = s.Id,
-                Name = players.Single(p => p.Id == s.PlayerId).Name,
-                Affiliation = players.Single(p => p.Id == s.PlayerId).Affiliation,
-                Score = s.Amount
+                PlayerId = p.Id,
+                Name = p.Name,
+                Affiliation = p.Affiliation,
+                Score = scores.Where(s => s.PlayerId == p.Id).Sum(s => s.Amount),
+                MatchScores = scores.Where(s => s.PlayerId == p.Id).OrderBy(s => s.MatchupId).Select(s => s.Amount).ToList()
             }).OrderByDescending(x => x.Score));
         }
 
@@ -130,6 +131,27 @@ namespace KIB_Service.Controllers
             var createdPlayer = playerRepository.Add(tournamentId, player);
 
             return Ok(createdPlayer.ToPlayerDto());
+        }
+
+        [HttpDelete("{tournamentId}/Player/{playerId}")]
+        public IActionResult DeletePlayer(int tournamentId, int playerId)
+        {
+            var tournament = tournamentRepository.Get(tournamentId);
+            if(tournament == null)
+            {
+                return BadRequest();
+            }
+
+            var round = roundRepository.GetCurrentRound(tournamentId);
+            if(round == null)
+            {
+                playerRepository.Delete(playerId);
+            }else
+            {
+                playerRepository.Disable(playerId);
+            }
+
+            return Ok();
         }
 
         [HttpGet("{tournamentId}/Player")]

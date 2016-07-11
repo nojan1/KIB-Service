@@ -1,6 +1,5 @@
  * Player delete / dropout
  * Client handling of dropout / delete player
  * Client generate matchup
- * Scorelist
  * Player page to see pairings
    * Report score?

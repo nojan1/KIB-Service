@@ -28,7 +28,23 @@ namespace KIB_Service.Repositories
                 new KeyValuePair<string, object>("TournamentId", tournamentId),
                 new KeyValuePair<string, object>("Active", true),
                 new KeyValuePair<string, object>("CompensationPoints", data.CompensationPoints)
-            }, UnpackPlayer, "Id, Name, Affiliation, Active");
+            }, UnpackPlayer, "Id, Name, Affiliation, Active, CompensationPoints");
+        }
+
+        public void Delete(int playerId)
+        {
+            dbHelper.Delete("Player",
+                 new KeyValuePair<string, object>("Id", playerId));
+        }
+
+
+        public void Disable(int playerId)
+        {
+            dbHelper.Update("Player",
+                new List<KeyValuePair<string, object>>{
+                    new KeyValuePair<string, object>("Active", 0)
+                },
+                new KeyValuePair<string, object>("Id", playerId));
         }
 
         public ICollection<Player> GetAllInTournament(int tournamentId)

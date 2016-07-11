@@ -11,5 +11,7 @@ namespace KIB_Service.Repositories.Interfaces
     {
         Player Add(int tournamentId, PlayerDto data);
         ICollection<Player> GetAllInTournament(int tournamentId);
+        void Disable(int playerId);
+        void Delete(int playerId);
     }
 }

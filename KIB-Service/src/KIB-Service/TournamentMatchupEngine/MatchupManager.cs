@@ -44,7 +44,7 @@ namespace KIB_Service.TournamentMatchupEngine
             var players = playerRepository.GetAllInTournament(tournamentId);
             var scores = roundRepository.GetScoresForTournament(tournamentId);
 
-            var contestants = players.Select(p => new Contestant
+            var contestants = players.Where(p => p.Active).Select(p => new Contestant
             {
                 Identifier = p.Id,
                 Affiliation = p.Affiliation,

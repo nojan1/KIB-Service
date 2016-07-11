@@ -104,7 +104,7 @@ namespace KIB_Service.Helpers
             var sql = "update " + tableName + " set ";
             sql += string.Join(",", columnValues.Select(v => v.Key + "=@" + v.Key));
 
-            if(key != null)
+            if (key != null)
             {
                 sql += " where " + key.Value.Key + "=@" + key.Value.Key;
             }
@@ -122,7 +122,7 @@ namespace KIB_Service.Helpers
                     cmd.Parameters.Add(dbParam);
                 }
 
-                if(key != null)
+                if (key != null)
                 {
                     var dbParam = cmd.CreateParameter();
                     dbParam.ParameterName = key.Value.Key;
@@ -135,6 +135,35 @@ namespace KIB_Service.Helpers
                 cmd.ExecuteNonQuery();
                 conn.Close();
             }
+        }
+
+        public void Delete(string tableName, KeyValuePair<string, object>? key)
+        {
+            var conn = Connection;
+
+            var sql = "delete from " + tableName + " ";
+            if (key != null)
+            {
+                sql += " where " + key.Value.Key + "=@" + key.Value.Key;
             }
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+
+                if (key != null)
+                {
+                    var dbParam = cmd.CreateParameter();
+                    dbParam.ParameterName = key.Value.Key;
+                    dbParam.Value = key.Value.Value;
+
+                    cmd.Parameters.Add(dbParam);
+                }
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
     }
 }
