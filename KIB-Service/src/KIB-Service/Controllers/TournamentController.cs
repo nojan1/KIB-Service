@@ -105,9 +105,18 @@ namespace KIB_Service.Controllers
         }
 
         [HttpGet("{tournamentId}/score")]
-        public IActionResult GetHighscore(int tournamentId)
+        public IActionResult GetScoreboard(int tournamentId)
         {
-            throw new NotImplementedException();
+            var scores = roundRepository.GetScoresForTournament(tournamentId);
+            var players = playerRepository.GetAllInTournament(tournamentId);
+
+            return Ok(scores.Select(s => new PlayerScoreDto
+            {
+                PlayerId = s.Id,
+                Name = players.Single(p => p.Id == s.PlayerId).Name,
+                Affiliation = players.Single(p => p.Id == s.PlayerId).Affiliation,
+                Score = s.Amount
+            }).OrderByDescending(x => x.Score));
         }
 
         [HttpPost("{tournamentId}/Player")]

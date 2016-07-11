@@ -130,7 +130,7 @@ namespace KIB_Service.Repositories
                 }
             });
 
-            var matchup = dbHelper.Get("select Id, Player2Id, Player1Id, RoundId, TableNumber from matchup where Id = " + matchupId, UnpackMatchup);
+            var matchup = dbHelper.Get("select Id, Player1Id, Player2Id, RoundId, TableNumber from matchup where Id = " + matchupId, UnpackMatchup);
             if(matchup == null)
             {
                 throw new Exception("No such matchup!");

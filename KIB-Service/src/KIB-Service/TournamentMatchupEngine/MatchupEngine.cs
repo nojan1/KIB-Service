@@ -165,7 +165,7 @@ namespace KIB_Service.TournamentMatchupEngine
 
         private IEnumerable<IEnumerable<T>> FastPowerSet<T>(IEnumerable<T> seq)
         {
-            var powerSet = new T[1 << seq.Count()][];
+            var powerSet = new List<T[]>();
             powerSet[0] = new T[0]; // starting only with empty set
             for (int i = 0; i < seq.Count(); i++)
             {
@@ -182,5 +182,10 @@ namespace KIB_Service.TournamentMatchupEngine
             }
             return powerSet;
         }
+
+        //private long largeShift(int shiftBy)
+        //{
+
+        //}
     }
 }
