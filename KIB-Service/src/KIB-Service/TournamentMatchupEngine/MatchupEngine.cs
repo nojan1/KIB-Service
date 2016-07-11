@@ -36,22 +36,24 @@ namespace KIB_Service.TournamentMatchupEngine
         {
             var returnValue = new List<ContestantMatchup>();
 
-            //First round, order by affiliation and randomize
+            //First round, sort by CompensationPoints and pick groups.
+            //OR if all 0 order by affiliation and randomize
             //In theory this should reduce the likelyhood off people from same affiliation meeting each other
 
-            var shuffledContestants = contestants.OrderBy(c => c.Affiliation).Shuffle().ToList();
+            var orderedContestants = contestants.All(c => c.CompensationPoints == 0) ? contestants.OrderBy(c => c.Affiliation).Shuffle().ToList()
+                                                                                     : contestants.OrderByDescending(c => c.CompensationPoints).ToList();
             var tableNumber = 1;
 
-            while (shuffledContestants.Count >= 2)
+            while (orderedContestants.Count >= 2)
             {
                 returnValue.Add(new ContestantMatchup
                 {
-                    Contestant1 = shuffledContestants[0],
-                    Contestant2 = shuffledContestants[1],
+                    Contestant1 = orderedContestants[0],
+                    Contestant2 = orderedContestants[1],
                     Table = tableNumber++
                 });
 
-                shuffledContestants.RemoveRange(0, 2);
+                orderedContestants.RemoveRange(0, 2);
             }
 
             return returnValue;
@@ -112,19 +114,28 @@ namespace KIB_Service.TournamentMatchupEngine
 
         private IEnumerable<IEnumerable<ContestantMatchup>> GenerateAllPossibleMatchups(ICollection<Contestant> contestants)
         {
-            var allMatchups = (from m in Enumerable.Range(0, 1 << contestants.Count)
-                    select
-                        from i in Enumerable.Range(0, contestants.Count)
-                        where (m & (1 << i)) != 0
-                        select contestants.ElementAt(i))
-                    .Where(x => x.Count() == 2)
-                    .Select(x => new ContestantMatchup
-                    {
-                        Contestant1 = x.ElementAt(0),
-                        Contestant2 = x.ElementAt(1)
-                    })
-                    .ToList();
+            //var allMatchups = (from m in Enumerable.Range(0, 1 << contestants.Count)
+            //        select
+            //            from i in Enumerable.Range(0, contestants.Count)
+            //            where (m & (1 << i)) != 0
+            //            select contestants.ElementAt(i))
+            //        .Where(x => x.Count() == 2)
+            //        .Select(x => new ContestantMatchup
+            //        {
+            //            Contestant1 = x.ElementAt(0),
+            //            Contestant2 = x.ElementAt(1)
+            //        })
+            //        .ToList();
 
+
+            var allMatchups = FastPowerSet(contestants)
+                                .Where(x => x.Count() == 2)
+                                .Select(x => new ContestantMatchup
+                                {
+                                    Contestant1 = x.ElementAt(0),
+                                    Contestant2 = x.ElementAt(1)
+                                })
+                                .ToList();
 
             var returnValue = new List<IEnumerable<ContestantMatchup>>();
             while (allMatchups.Any())
@@ -137,8 +148,8 @@ namespace KIB_Service.TournamentMatchupEngine
                         var matchup = allMatchups.First(m => (m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier) &&
                                                               !workingSet.Any(m2 => m2.Contestant1.Identifier == m.Contestant1.Identifier || m2.Contestant1.Identifier == m.Contestant2.Identifier ||
                                                                                     m2.Contestant2.Identifier == m.Contestant1.Identifier || m2.Contestant2.Identifier == m.Contestant2.Identifier));
-                        allMatchups.Remove(matchup);
 
+                        allMatchups.Remove(matchup);
                         workingSet.Add(matchup);
                     }
 
@@ -150,6 +161,26 @@ namespace KIB_Service.TournamentMatchupEngine
             }
 
             return returnValue;
+        }
+
+        private IEnumerable<IEnumerable<T>> FastPowerSet<T>(IEnumerable<T> seq)
+        {
+            var powerSet = new T[1 << seq.Count()][];
+            powerSet[0] = new T[0]; // starting only with empty set
+            for (int i = 0; i < seq.Count(); i++)
+            {
+                var cur = seq.ElementAt(i);
+                int count = 1 << i; // doubling list each time
+                for (int j = 0; j < count; j++)
+                {
+                    var source = powerSet[j];
+                    var destination = powerSet[count + j] = new T[source.Length + 1];
+                    for (int q = 0; q < source.Length; q++)
+                        destination[q] = source[q];
+                    destination[source.Length] = cur;
+                }
+            }
+            return powerSet;
         }
     }
 }

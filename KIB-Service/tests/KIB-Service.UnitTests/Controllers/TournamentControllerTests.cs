@@ -130,6 +130,9 @@ namespace KIB_Service.Tests
                               })
                           });
 
+            mockRepository.Setup(r => r.GetScoresForTournament(It.IsAny<int>()))
+                          .Returns(new List<Score>());
+
             var ctrl = new TournamentController(null, null, mockRepository.Object, null);
 
             var result = ctrl.GetMatchups(1);

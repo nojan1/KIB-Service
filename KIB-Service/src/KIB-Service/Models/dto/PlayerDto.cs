@@ -12,8 +12,11 @@ namespace KIB_Service.Models.dto
         public string Name { get; set; }
         [Required]
         public string Affiliation { get; set; }
+        [Required]
+        public int CompensationPoints { get; set; } = 0;
 
         public int Id { get; set; }
         public bool Active { get; set; }
+        
     }
 }

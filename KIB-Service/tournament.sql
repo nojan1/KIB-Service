@@ -10,6 +10,7 @@ create table Player (
 	Affiliation varchar(50) null,
 	Name varchar(50) not null,
 	Active tinyint not null,
+	CompensationPoints int not null,
 
 	foreign key (TournamentId)
 		references Tournament(Id)
@@ -48,7 +49,7 @@ create table Matchup (
 
 create table Score (
 	Id int auto_increment primary key,
-	MatchupId int not null,
+	MatchupId int null,
 	PlayerId int not null,
 	Amount int not null,
 

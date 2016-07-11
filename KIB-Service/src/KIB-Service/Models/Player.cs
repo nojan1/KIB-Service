@@ -12,6 +12,7 @@ namespace KIB_Service.Models
         public string Name { get; set; }
         public string Affiliation { get; set; }
         public bool Active { get; set; }
+        public int CompensationPoints { get; set; }
 
         public PlayerDto ToPlayerDto()
         {
@@ -20,7 +21,8 @@ namespace KIB_Service.Models
                 Id = Id,
                 Active = Active,
                 Name = Name,
-                Affiliation = Affiliation
+                Affiliation = Affiliation,
+                CompensationPoints = CompensationPoints
             };
         }
     }

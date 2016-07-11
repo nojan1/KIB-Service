@@ -26,13 +26,14 @@ namespace KIB_Service.Repositories
                 new KeyValuePair<string, object>("Name", data.Name),
                 new KeyValuePair<string, object>("Affiliation", data.Affiliation),
                 new KeyValuePair<string, object>("TournamentId", tournamentId),
-                new KeyValuePair<string, object>("Active", true)
+                new KeyValuePair<string, object>("Active", true),
+                new KeyValuePair<string, object>("CompensationPoints", data.CompensationPoints)
             }, UnpackPlayer, "Id, Name, Affiliation, Active");
         }
 
         public ICollection<Player> GetAllInTournament(int tournamentId)
         {
-            return dbHelper.Query("select Id, Name, Affiliation, Active from Player where TournamentId = " + tournamentId, UnpackPlayer);
+            return dbHelper.Query("select Id, Name, Affiliation, Active, CompensationPoints from Player where TournamentId = " + tournamentId, UnpackPlayer);
         }
 
         private Player UnpackPlayer(DbDataReader reader)
@@ -42,7 +43,8 @@ namespace KIB_Service.Repositories
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
                 Affiliation = reader.GetString(2),
-                Active = Convert.ToBoolean(reader.GetValue(3))
+                Active = Convert.ToBoolean(reader.GetValue(3)),
+                CompensationPoints = reader.GetInt32(4)
             };
         }
     }

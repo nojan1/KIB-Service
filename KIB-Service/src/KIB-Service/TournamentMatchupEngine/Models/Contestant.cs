@@ -15,5 +15,6 @@ namespace KIB_Service.TournamentMatchupEngine.Models
         public int Identifier { get; set; }
         public string Affiliation { get; set; }
         public int Score { get; set; }
+        public int CompensationPoints { get; set; }
     }
 }

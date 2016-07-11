@@ -49,7 +49,8 @@ namespace KIB_Service.TournamentMatchupEngine
                 Identifier = p.Id,
                 Affiliation = p.Affiliation,
                 PreviousOpponents = ExtractPreviousOpponentsForPlayer(p, previousMatchups, players, scores),
-                Score = scores.Where(s => s.PlayerId == p.Id).Sum(s => s.Amount)
+                Score = scores.Where(s => s.PlayerId == p.Id).Sum(s => s.Amount),
+                CompensationPoints = p.CompensationPoints
             }).ToList();
 
             var engine = new MatchupEngine();
