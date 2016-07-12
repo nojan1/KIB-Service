@@ -11,4 +11,9 @@ namespace KIB_Service.TournamentMatchupEngine.Models
         public Contestant Contestant2 { get; set; }
         public int Table { get; set; }
     }
+
+    public class ScoredContestantMatchup : ContestantMatchup
+    {
+        public int Score { get; set; }
+    }
 }

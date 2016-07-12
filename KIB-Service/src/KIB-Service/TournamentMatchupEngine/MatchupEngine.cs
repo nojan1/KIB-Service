@@ -61,17 +61,8 @@ namespace KIB_Service.TournamentMatchupEngine
 
         private ICollection<ContestantMatchup> MatchupRoundX(ICollection<Contestant> contestants)
         {
-            var scoredMatchups = new List<MatchupScore>();
-
-            var allPossibleMatchups = GenerateAllPossibleMatchups(contestants);
-            foreach(var matchups in allPossibleMatchups)
-            {
-                scoredMatchups.Add(new MatchupScore
-                {
-                    Score = CalculateScoreForMatchup(matchups, contestants),
-                    Matchups = matchups.ToList()
-                });
-            }
+            var allContestantMatchups = ScoreContestantMatchups(contestants, MatchupCalculators.HaveMetBefore, MatchupCalculators.SameAffiliation, MatchupCalculators.ClosestInScore);
+            var scoredMatchups = CombineAndScoreContestantMatchups(allContestantMatchups, contestants);
 
             var bestMatchup = scoredMatchups.First(m => m.Score == scoredMatchups.Max(x => x.Score)).Matchups.ToList().Shuffle().ToList();
             for (int i = 1; i <= bestMatchup.Count; i++)
@@ -80,112 +71,57 @@ namespace KIB_Service.TournamentMatchupEngine
             return bestMatchup;
         }
 
-        private int CalculateScoreForMatchup(IEnumerable<ContestantMatchup> matchups, ICollection<Contestant> allContestants)
+        private ICollection<MatchupScore> CombineAndScoreContestantMatchups(ICollection<ScoredContestantMatchup> allContestantMatchups, ICollection<Contestant> allContestants)
         {
-            int score = 0;
-
-            foreach(var matchup in matchups)
+            var matchup = new MatchupScore();
+            foreach(var contestant in allContestants.OrderByDescending(c => c.Score))
             {
-                //If it is the best score match
-                int scoreDifference = Math.Abs(matchup.Contestant1.Score - matchup.Contestant2.Score);
-                var contest1ScoreDifference = allContestants.Where(c => c.Identifier != matchup.Contestant1.Identifier).Select(c => Math.Abs(c.Score - matchup.Contestant1.Score)).Min();
-
-                if(scoreDifference == contest1ScoreDifference)
+                var scoredMatchup = allContestantMatchups.FirstOrDefault(m => (m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier) &&
+                                                                              !matchup.Matchups.Any(x => x.Contestant1.Identifier == m.Contestant1.Identifier ||
+                                                                                                         x.Contestant1.Identifier == m.Contestant2.Identifier ||
+                                                                                                         x.Contestant2.Identifier == m.Contestant1.Identifier ||
+                                                                                                         x.Contestant2.Identifier == m.Contestant2.Identifier));
+                if(scoredMatchup == null)
                 {
-                    score += 1;
+                    continue;
                 }
 
-                //If the contestants have met before
-                if (matchup.Contestant1.PreviousOpponents.Any(o => o.Identifier == matchup.Contestant2.Identifier) ||
-                   matchup.Contestant2.PreviousOpponents.Any(o => o.Identifier == matchup.Contestant1.Identifier))
+                matchup.Matchups.Add(new ContestantMatchup
                 {
-                    score -= 2;
-                }
+                    Contestant1 = scoredMatchup.Contestant1,
+                    Contestant2 = scoredMatchup.Contestant2
+                });
 
-                //If the contestants have the same affiliation give minus points
-                if(matchup.Contestant1.Affiliation == matchup.Contestant2.Affiliation)
-                {
-                    score -= 1;
-                }
+                matchup.Score += scoredMatchup.Score;
             }
 
-            return score;
+            return new List<MatchupScore> { matchup };
         }
 
-        private IEnumerable<IEnumerable<ContestantMatchup>> GenerateAllPossibleMatchups(ICollection<Contestant> contestants)
+        private ICollection<ScoredContestantMatchup> ScoreContestantMatchups(ICollection<Contestant> contestants, params Func<Contestant, Contestant, ICollection<Contestant>, int>[] calculators)
         {
-            //var allMatchups = (from m in Enumerable.Range(0, 1 << contestants.Count)
-            //        select
-            //            from i in Enumerable.Range(0, contestants.Count)
-            //            where (m & (1 << i)) != 0
-            //            select contestants.ElementAt(i))
-            //        .Where(x => x.Count() == 2)
-            //        .Select(x => new ContestantMatchup
-            //        {
-            //            Contestant1 = x.ElementAt(0),
-            //            Contestant2 = x.ElementAt(1)
-            //        })
-            //        .ToList();
+            var retval = new List<ScoredContestantMatchup>();
 
-
-            var allMatchups = FastPowerSet(contestants)
-                                .Where(x => x.Count() == 2)
-                                .Select(x => new ContestantMatchup
-                                {
-                                    Contestant1 = x.ElementAt(0),
-                                    Contestant2 = x.ElementAt(1)
-                                })
-                                .ToList();
-
-            var returnValue = new List<IEnumerable<ContestantMatchup>>();
-            while (allMatchups.Any())
+            foreach(var contestant1 in contestants)
             {
-                var workingSet = new List<ContestantMatchup>();
-                foreach(var contestant in contestants)
+                foreach(var contestant2 in contestants)
                 {
-                    if(!workingSet.Any(m => m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier))
+                    if(contestant1 == contestant2 || retval.Any(c => (c.Contestant1.Identifier == contestant1.Identifier || c.Contestant1.Identifier == contestant2.Identifier) &&
+                                                                     (c.Contestant2.Identifier == contestant1.Identifier || c.Contestant2.Identifier == contestant2.Identifier)))
                     {
-                        var matchup = allMatchups.First(m => (m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier) &&
-                                                              !workingSet.Any(m2 => m2.Contestant1.Identifier == m.Contestant1.Identifier || m2.Contestant1.Identifier == m.Contestant2.Identifier ||
-                                                                                    m2.Contestant2.Identifier == m.Contestant1.Identifier || m2.Contestant2.Identifier == m.Contestant2.Identifier));
-
-                        allMatchups.Remove(matchup);
-                        workingSet.Add(matchup);
+                        continue;
                     }
 
-                    if (!allMatchups.Any())
-                        break;
-                }
-
-                returnValue.Add(workingSet);
-            }
-
-            return returnValue;
-        }
-
-        private IEnumerable<IEnumerable<T>> FastPowerSet<T>(IEnumerable<T> seq)
-        {
-            var powerSet = new List<T[]>();
-            powerSet[0] = new T[0]; // starting only with empty set
-            for (int i = 0; i < seq.Count(); i++)
-            {
-                var cur = seq.ElementAt(i);
-                int count = 1 << i; // doubling list each time
-                for (int j = 0; j < count; j++)
-                {
-                    var source = powerSet[j];
-                    var destination = powerSet[count + j] = new T[source.Length + 1];
-                    for (int q = 0; q < source.Length; q++)
-                        destination[q] = source[q];
-                    destination[source.Length] = cur;
+                    retval.Add(new ScoredContestantMatchup
+                    {
+                        Contestant1 = contestant1,
+                        Contestant2 = contestant2,
+                        Score = calculators.Sum(c => c.Invoke(contestant1, contestant2, contestants))
+                    });
                 }
             }
-            return powerSet;
+
+            return retval.OrderByDescending(x => x.Score).ToList();
         }
-
-        //private long largeShift(int shiftBy)
-        //{
-
-        //}
     }
 }

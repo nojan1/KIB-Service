@@ -153,6 +153,7 @@ namespace KIB_Service.Tests
 
         [Theory]
         [InlineData(20, 5)]
+        [InlineData(40, 5)]
         public void XNumberOfOpponentsInYRandomOutcomeMatchesShouldNotMeatEachOtherTwice(int numPlayers, int numRounds)
         {
             var contestants = Enumerable.Range(1, numPlayers)
