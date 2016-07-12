@@ -11,7 +11,7 @@ namespace KIB_Service.TournamentMatchupEngine
     {
         public ICollection<ContestantMatchup> GenerateMatchup(ICollection<Contestant> contestants)
         {
-            if(contestants.Count <= 1)
+            if (contestants.Count <= 1)
             {
                 throw new Exception("Not enough contestants to generate matchup");
             }
@@ -31,7 +31,7 @@ namespace KIB_Service.TournamentMatchupEngine
                 return MatchupRound1(contestants);
             }
         }
-        
+
         private ICollection<ContestantMatchup> MatchupRound1(ICollection<Contestant> contestants)
         {
             var returnValue = new List<ContestantMatchup>();
@@ -73,41 +73,50 @@ namespace KIB_Service.TournamentMatchupEngine
 
         private ICollection<MatchupScore> CombineAndScoreContestantMatchups(ICollection<ScoredContestantMatchup> allContestantMatchups, ICollection<Contestant> allContestants)
         {
-            var matchup = new MatchupScore();
-            foreach(var contestant in allContestants.OrderByDescending(c => c.Score))
+            var returnValue = new List<MatchupScore>();
+            var contestantsPermutation = allContestants.Permute().ToList();
+
+            foreach (var contestants in contestantsPermutation)
             {
-                var scoredMatchup = allContestantMatchups.FirstOrDefault(m => (m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier) &&
-                                                                              !matchup.Matchups.Any(x => x.Contestant1.Identifier == m.Contestant1.Identifier ||
-                                                                                                         x.Contestant1.Identifier == m.Contestant2.Identifier ||
-                                                                                                         x.Contestant2.Identifier == m.Contestant1.Identifier ||
-                                                                                                         x.Contestant2.Identifier == m.Contestant2.Identifier));
-                if(scoredMatchup == null)
+                var matchup = new MatchupScore();
+
+                foreach (var contestant in contestants)
                 {
-                    continue;
+                    var scoredMatchup = allContestantMatchups.FirstOrDefault(m => (m.Contestant1.Identifier == contestant.Identifier || m.Contestant2.Identifier == contestant.Identifier) &&
+                                                                                  !matchup.Matchups.Any(x => x.Contestant1.Identifier == m.Contestant1.Identifier ||
+                                                                                                             x.Contestant1.Identifier == m.Contestant2.Identifier ||
+                                                                                                             x.Contestant2.Identifier == m.Contestant1.Identifier ||
+                                                                                                             x.Contestant2.Identifier == m.Contestant2.Identifier));
+                    if (scoredMatchup == null)
+                    {
+                        continue;
+                    }
+
+                    matchup.Matchups.Add(new ContestantMatchup
+                    {
+                        Contestant1 = scoredMatchup.Contestant1,
+                        Contestant2 = scoredMatchup.Contestant2
+                    });
+
+                    matchup.Score += scoredMatchup.Score;
                 }
 
-                matchup.Matchups.Add(new ContestantMatchup
-                {
-                    Contestant1 = scoredMatchup.Contestant1,
-                    Contestant2 = scoredMatchup.Contestant2
-                });
-
-                matchup.Score += scoredMatchup.Score;
+                returnValue.Add(matchup);
             }
 
-            return new List<MatchupScore> { matchup };
+            return returnValue;
         }
 
         private ICollection<ScoredContestantMatchup> ScoreContestantMatchups(ICollection<Contestant> contestants, params Func<Contestant, Contestant, ICollection<Contestant>, int>[] calculators)
         {
             var retval = new List<ScoredContestantMatchup>();
 
-            foreach(var contestant1 in contestants)
+            foreach (var contestant1 in contestants)
             {
-                foreach(var contestant2 in contestants)
+                foreach (var contestant2 in contestants)
                 {
-                    if(contestant1 == contestant2 || retval.Any(c => (c.Contestant1.Identifier == contestant1.Identifier || c.Contestant1.Identifier == contestant2.Identifier) &&
-                                                                     (c.Contestant2.Identifier == contestant1.Identifier || c.Contestant2.Identifier == contestant2.Identifier)))
+                    if (contestant1 == contestant2 || retval.Any(c => (c.Contestant1.Identifier == contestant1.Identifier || c.Contestant1.Identifier == contestant2.Identifier) &&
+                                                                      (c.Contestant2.Identifier == contestant1.Identifier || c.Contestant2.Identifier == contestant2.Identifier)))
                     {
                         continue;
                     }

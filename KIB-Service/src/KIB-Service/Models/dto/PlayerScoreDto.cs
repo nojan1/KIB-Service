@@ -11,6 +11,10 @@ namespace KIB_Service.Models.dto
         public string Name { get; set; }
         public string Affiliation { get; set; }
         public int Score { get; set; }
-        public ICollection<int> MatchScores { get; set; }
+        public ICollection<MatchScore> MatchScores { get; set; }
+    }
+
+    public class MatchScore {
+        public int Score { get; set; }
     }
 }

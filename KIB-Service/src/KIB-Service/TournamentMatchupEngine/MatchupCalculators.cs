@@ -16,7 +16,7 @@ namespace KIB_Service.TournamentMatchupEngine
                 return -2;
             }
 
-            return 0;
+            return 1;
         }
 
         public static int ClosestInScore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
@@ -34,6 +34,11 @@ namespace KIB_Service.TournamentMatchupEngine
 
         public static int SameAffiliation(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
         {
+            if(allContestants.All(c => c.Affiliation == allContestants.First().Affiliation))
+            {
+                return 0;
+            }
+
             if (contestant1.Affiliation == contestant2.Affiliation)
             {
                 return -1;
