@@ -16,11 +16,12 @@ namespace KIB_Service.TournamentMatchupEngine
                 throw new Exception("Not enough contestants to generate matchup");
             }
 
-            var roundNum = contestants.First().PreviousOpponents.Count + 1;
-            if (contestants.Any(c => c.PreviousOpponents.Count != roundNum - 1))
+            if(contestants.Count % 2 != 0)
             {
-                throw new Exception("Supplied contestants does not have the same number of previous opponents");
+                throw new Exception("Number of contestants must be even");
             }
+
+            var roundNum = contestants.First().PreviousOpponents.Count + 1;
 
             if (roundNum != 1)
             {
@@ -74,9 +75,9 @@ namespace KIB_Service.TournamentMatchupEngine
         private ICollection<MatchupScore> CombineAndScoreContestantMatchups(ICollection<ScoredContestantMatchup> allContestantMatchups, ICollection<Contestant> allContestants)
         {
             var returnValue = new List<MatchupScore>();
-            var contestantsPermutation = allContestants.Permute().ToList();
+            //var contestantsPermutation = allContestants.Permute();
 
-            foreach (var contestants in contestantsPermutation)
+            foreach (var contestants in new List<ICollection<Contestant>> { allContestants })
             {
                 var matchup = new MatchupScore();
 

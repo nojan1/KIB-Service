@@ -81,7 +81,7 @@ namespace KIB_Service.Controllers
                     Id = y.Id,
                     TableNumber = y.TableNumber,
                     Player1Id = y.Player1Id,
-                    Player2Id = y.Player2Id,
+                    Player2Id = y.Player2Id ?? -1,
                     Player1Score = scores.SingleOrDefault(s => s.MatchupId == y.Id && s.PlayerId == y.Player1Id)?.Amount ?? 0,
                     Player2Score = scores.SingleOrDefault(s => s.MatchupId == y.Id && s.PlayerId == y.Player2Id)?.Amount ?? 0
                 }).ToList()

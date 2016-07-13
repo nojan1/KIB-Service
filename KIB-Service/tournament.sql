@@ -32,7 +32,7 @@ create table Matchup (
 	RoundId int not null,
 	TableNumber int not null,
 	Player1Id int not null,
-	Player2Id int not null,
+	Player2Id int null,
 
 	foreign key (RoundId)
 		references Round(Id)
@@ -49,7 +49,7 @@ create table Matchup (
 
 create table Score (
 	Id int auto_increment primary key,
-	MatchupId int null,
+	MatchupId int not null,
 	PlayerId int not null,
 	Amount int not null,
 

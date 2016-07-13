@@ -30,7 +30,7 @@ namespace KIB_Service.TournamentMatchupEngine
             var scores = roundRepository.GetScoresForTournament(tournamentId);
             var scoresForCurrentRound = scores.Where(s => currentRound.Matchups.Select(m => m.Id).Contains(s.MatchupId)).ToList();
 
-            return scoresForCurrentRound.Count == currentRound.Matchups.Count * 2;
+            return scoresForCurrentRound.Count == currentRound.Matchups.Sum(m => m.Player2Id.HasValue ? 2 : 1);
         }
 
         public Round GenerateMatchups(int tournamentId)
@@ -51,10 +51,16 @@ namespace KIB_Service.TournamentMatchupEngine
                 PreviousOpponents = ExtractPreviousOpponentsForPlayer(p, previousMatchups, players, scores),
                 Score = scores.Where(s => s.PlayerId == p.Id).Sum(s => s.Amount),
                 CompensationPoints = p.CompensationPoints
-            }).ToList();
+            }).OrderBy(c => c.Score).ToList();
+
+            if (contestants.Count <= 1)
+            {
+                throw new Exception("Not enough active player in tournament to generate round matchups");
+            }
 
             var engine = new MatchupEngine();
-            var contestantMatchups = engine.GenerateMatchup(contestants);
+            var contestantMatchups = engine.GenerateMatchup(contestants.Count % 2 == 0 ? contestants
+                                                                                       : contestants.Skip(1).ToList());
 
             var round = roundRepository.Add(new Round
             {
@@ -70,6 +76,13 @@ namespace KIB_Service.TournamentMatchupEngine
                 Player2Id = x.Contestant2.Identifier
             }).ToList());
 
+            if (contestants.Count % 2 != 0)
+            {
+                //The left over player gets a pseudo matchup and score
+                var leftOverContestant = contestants.First();
+                roundRepository.AddPseudoMatchupToRound(round.Id, leftOverContestant.Identifier);
+            }
+
             return roundRepository.GetCurrentRound(tournamentId);
         }
 
@@ -77,14 +90,18 @@ namespace KIB_Service.TournamentMatchupEngine
         {
             var previousOpponents = new List<Player>();
 
-            foreach(var roundMatchups in allMatchups)
+            foreach (var roundMatchups in allMatchups)
             {
-                foreach(var matchup in roundMatchups)
+                foreach (var matchup in roundMatchups)
                 {
-                    if(matchup.Player1Id == player.Id)
+                    if (matchup.Player1Id == player.Id)
                     {
-                        previousOpponents.Add(allPlayers.Single(p => p.Id == matchup.Player2Id));
-                    }else if(matchup.Player2Id == player.Id)
+                        if (matchup.Player2Id.HasValue)
+                        {
+                            previousOpponents.Add(allPlayers.Single(p => p.Id == matchup.Player2Id));
+                        }
+                    }
+                    else if (matchup.Player2Id == player.Id)
                     {
                         previousOpponents.Add(allPlayers.Single(p => p.Id == matchup.Player1Id));
                     }

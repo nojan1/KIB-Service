@@ -6,33 +6,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace KIB_Service.Tests
+namespace KIB_Service.Tests.MatchupComponent
 {
     public class MatchupEngineTests
     {
+
         [Fact]
-        public void DifferentNumberOfPreviousOpponentsInContestantsShouldThrow()
+        public void GenereatingMatchupWithUnevenNumberOfContestantsShouldThrow()
         {
             var matchupEngine = new MatchupEngine();
             var contestants = new List<Contestant>
             {
-                new Contestant
-                {
-                    PreviousOpponents = new List<ContestantWithoutPreviouseOpponents>
-                    {
-                        new ContestantWithoutPreviouseOpponents(),
-                        new ContestantWithoutPreviouseOpponents(),
-                        new ContestantWithoutPreviouseOpponents()
-                    }
-                },
-                new Contestant
-                {
-                    PreviousOpponents = new List<ContestantWithoutPreviouseOpponents>
-                    {
-                        new ContestantWithoutPreviouseOpponents(),
-                        new ContestantWithoutPreviouseOpponents()
-                    }
-                }
+                new Contestant(),
+                new Contestant(),
+                new Contestant()
             };
 
             Assert.Throws<Exception>(() => { matchupEngine.GenerateMatchup(contestants); });

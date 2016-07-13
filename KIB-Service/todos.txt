@@ -1,1 +1,8 @@
-* Client generate matchup
+* Matchups
+ * UI update
+ * Working (pass tests)
+ * Add Pseudo round for player left out
+ 
+* Tournament view for players
+ * Tournament info and missions
+ * Highscore 

@@ -14,5 +14,6 @@ namespace KIB_Service.Repositories.Interfaces
         IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId);
         void SetScore(int matchupId, int player1Score, int player2Score);
         ICollection<Score> GetScoresForTournament(int tournamentId);
+        void AddPseudoMatchupToRound(int roundId, int playerId);
     }
 }

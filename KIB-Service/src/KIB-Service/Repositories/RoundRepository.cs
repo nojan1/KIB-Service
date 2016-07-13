@@ -45,6 +45,26 @@ namespace KIB_Service.Repositories
             }
         }
 
+        public void AddPseudoMatchupToRound(int roundId, int playerId)
+        {
+            var matchup = dbHelper.Insert("Matchup",
+                                          new List<KeyValuePair<string, object>>
+                                          {
+                                              new KeyValuePair<string, object>("Player1Id", playerId),
+                                              new KeyValuePair<string, object>("RoundId", roundId)
+                                          },
+                                          UnpackMatchup,
+                                          "Id, Player1Id, Player2Id, RoundId, TableNumber");
+
+            dbHelper.Insert("Score",
+                            new List<KeyValuePair<string, object>>
+                            {
+                                new KeyValuePair<string, object>("MatchupId", matchup.Id),
+                                new KeyValuePair<string, object>("PlayerId", matchup.Id),
+                                new KeyValuePair<string, object>("Amount", 0)
+                            });
+        }
+
         public IEnumerable<IGrouping<int, Matchup>> GetAllMatchups(int tournamentId)
         {
             var matchups = dbHelper.Query(@"select m.Id, m.Player1Id, m.Player2Id, m.RoundId, m.TableNumber, r.RoundNumber from Matchup as m 
@@ -136,8 +156,13 @@ namespace KIB_Service.Repositories
                 throw new Exception("No such matchup!");
             }
 
+
             updateScore(matchup.Player1Id, player1Score);
-            updateScore(matchup.Player2Id, player2Score);
+
+            if (matchup.Player2Id.HasValue)
+            {
+                updateScore(matchup.Player2Id.Value, player2Score);
+            }
         }
 
         private Matchup UnpackMatchup(DbDataReader reader)
@@ -146,7 +171,7 @@ namespace KIB_Service.Repositories
             {
                 Id = reader.GetInt32(0),
                 Player1Id = reader.GetInt32(1),
-                Player2Id = reader.GetInt32(2),
+                Player2Id = reader.IsDBNull(2) ? null : (int?)reader.GetInt32(2),
                 RoundId = reader.GetInt32(3),
                 TableNumber = reader.GetInt32(4)
             };
