@@ -38,23 +38,6 @@ namespace KIB_Service.Tests.MatchupComponent
         }
 
         [Fact]
-        public void EnteringAnUneveenNumberOfContestantsForRoundOneShouldLeaveOneOut()
-        {
-            var matchupEngine = new MatchupEngine();
-            var contestants = new List<Contestant>
-            {
-                new Contestant(),
-                new Contestant(),
-                new Contestant(),
-                new Contestant(),
-                new Contestant(),
-            };
-
-            var matchups = matchupEngine.GenerateMatchup(contestants);
-            Assert.Equal(2, matchups.Count);
-        }
-
-        [Fact]
         public void GeneratingMatchupsForRound1ByCompShouldReturnCorrectValue()
         {
             var matchupEngine = new MatchupEngine();

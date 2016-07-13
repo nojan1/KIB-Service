@@ -63,7 +63,7 @@ namespace KIB_Service.TournamentMatchupEngine
         private ICollection<ContestantMatchup> MatchupRoundX(ICollection<Contestant> contestants)
         {
             var allContestantMatchups = ScoreContestantMatchups(contestants, MatchupCalculators.HaveMetBefore, MatchupCalculators.SameAffiliation, MatchupCalculators.ClosestInScore);
-            var scoredMatchups = CombineAndScoreContestantMatchups(allContestantMatchups, contestants);
+            var scoredMatchups = CombineAndScoreContestantMatchups(allContestantMatchups, contestants.OrderByDescending(c => c.Score).ToList());
 
             var bestMatchup = scoredMatchups.First(m => m.Score == scoredMatchups.Max(x => x.Score)).Matchups.ToList().Shuffle().ToList();
             for (int i = 1; i <= bestMatchup.Count; i++)
@@ -75,10 +75,12 @@ namespace KIB_Service.TournamentMatchupEngine
         private ICollection<MatchupScore> CombineAndScoreContestantMatchups(ICollection<ScoredContestantMatchup> allContestantMatchups, ICollection<Contestant> allContestants)
         {
             var returnValue = new List<MatchupScore>();
-            //var contestantsPermutation = allContestants.Permute();
 
-            foreach (var contestants in new List<ICollection<Contestant>> { allContestants })
+            for(var i = 0; i < allContestants.Count; i++)
             {
+                var contestants = allContestants.Skip(i).ToList();
+                contestants.AddRange(allContestants.Take(i));
+
                 var matchup = new MatchupScore();
 
                 foreach (var contestant in contestants)
