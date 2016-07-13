@@ -28,7 +28,7 @@ namespace KIB_Service.TournamentMatchupEngine
                 return true;
 
             var scores = roundRepository.GetScoresForTournament(tournamentId);
-            var scoresForCurrentRound = scores.Where(s => currentRound.Matchups.Select(m => m.Id).Contains(s.MatchupId)).ToList();
+            var scoresForCurrentRound = scores.Where(s => s.MatchupId.HasValue && currentRound.Matchups.Select(m => m.Id).Contains(s.MatchupId.Value)).ToList();
 
             return scoresForCurrentRound.Count == currentRound.Matchups.Sum(m => m.Player2Id.HasValue ? 2 : 1);
         }

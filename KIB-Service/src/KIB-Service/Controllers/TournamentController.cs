@@ -116,7 +116,7 @@ namespace KIB_Service.Controllers
                 Name = p.Name,
                 Affiliation = p.Affiliation,
                 Score = scores.Where(s => s.PlayerId == p.Id).Sum(s => s.Amount),
-                MatchScores = scores.Where(s => s.PlayerId == p.Id).OrderBy(s => s.MatchupId).Select(s => new MatchScore
+                MatchScores = scores.Where(s => s.PlayerId == p.Id && s.MatchupId.HasValue).OrderBy(s => s.MatchupId).Select(s => new MatchScore
                 {
                     Score = s.Amount
                 }).ToList()

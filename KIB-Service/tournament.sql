@@ -49,7 +49,7 @@ create table Matchup (
 
 create table Score (
 	Id int auto_increment primary key,
-	MatchupId int not null,
+	MatchupId int null,
 	PlayerId int not null,
 	Amount int not null,
 

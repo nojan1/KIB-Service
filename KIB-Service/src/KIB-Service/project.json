@@ -21,6 +21,10 @@
     "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.0.0-preview2-final"
   },
 
+  "commands": {
+    "run": "run server.urls=http://0.0.0.0:5000"
+  },
+
 
   "frameworks": {
     "netcoreapp1.0": {

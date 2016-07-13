@@ -60,7 +60,7 @@ namespace KIB_Service.Repositories
                             new List<KeyValuePair<string, object>>
                             {
                                 new KeyValuePair<string, object>("MatchupId", matchup.Id),
-                                new KeyValuePair<string, object>("PlayerId", matchup.Id),
+                                new KeyValuePair<string, object>("PlayerId", playerId),
                                 new KeyValuePair<string, object>("Amount", 0)
                             });
         }
@@ -106,7 +106,7 @@ namespace KIB_Service.Repositories
                 return new Score
                 {
                     Id = reader.GetInt32(0),
-                    MatchupId = reader.GetInt32(1),
+                    MatchupId = reader.IsDBNull(1) ? null : (int?)reader.GetInt32(1),
                     Amount = reader.GetInt32(2),
                     PlayerId = reader.GetInt32(3)
                 };
@@ -117,15 +117,12 @@ namespace KIB_Service.Repositories
         {
             var updateScore = new Action<int, int>((playerId, amount) =>
             {
-                var existingScore = dbHelper.Get("select Id, MatchupId, PlayerId, Amount from Score where MatchupId = " + matchupId + " and PlayerId = " + playerId,
+                var existingScore = dbHelper.Get("select Id from Score where MatchupId = " + matchupId + " and PlayerId = " + playerId,
                 (reader) =>
                 {
                     return new Score
                     {
-                        Id = reader.GetInt32(0),
-                        MatchupId = reader.GetInt32(1),
-                        PlayerId = reader.GetInt32(2),
-                        Amount = reader.GetInt32(3)
+                        Id = reader.GetInt32(0)
                     };
                 });
 
