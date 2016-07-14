@@ -11,4 +11,4 @@ WORKDIR /app
 RUN dotnet restore
 
 ENV ASPNETCORE_ENVIRONMENT "Production"
-ENTRYPOINT ["dotnet", "run"]
+ENTRYPOINT ["dotnet", "run", "http://0.0.0.0:5000"]

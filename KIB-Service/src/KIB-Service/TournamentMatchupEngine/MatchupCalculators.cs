@@ -8,31 +8,30 @@ namespace KIB_Service.TournamentMatchupEngine
 {
     public class MatchupCalculators
     {
-        public static int HaveMetBefore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
+        public static double HaveMetBefore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
         {
             if (contestant1.PreviousOpponents.Any(o => o.Identifier == contestant2.Identifier) ||
                   contestant2.PreviousOpponents.Any(o => o.Identifier == contestant1.Identifier))
             {
-                return -2;
+                return (MaxMatchupScore + 2) * -1;
             }
 
             return 1;
         }
 
-        public static int ClosestInScore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
+        private const double MaxMatchupScore = 4;
+        public static double ClosestInScore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
         {
             int scoreDifference = Math.Abs(contestant1.Score - contestant2.Score);
-            var contest1ScoreDifference = allContestants.Where(c => c.Identifier != contestant1.Identifier).Select(c => Math.Abs(c.Score -contestant1.Score)).Min();
+            var bestScoreDifference = allContestants.Where(c => c.Identifier != contestant1.Identifier).Select(c => Math.Abs(c.Score - contestant1.Score)).Min();
 
-            if (scoreDifference == contest1ScoreDifference)
-            {
-                return 1;
-            }
+            if (scoreDifference == 0)
+                return MaxMatchupScore;
 
-            return 0;
+            return ((double)bestScoreDifference / (double)scoreDifference) * MaxMatchupScore;
         }
 
-        public static int SameAffiliation(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
+        public static double SameAffiliation(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
         {
             if(allContestants.All(c => c.Affiliation == allContestants.First().Affiliation))
             {

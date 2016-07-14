@@ -124,6 +124,7 @@ namespace KIB_Service.Tests.MatchupComponent
         [Theory]
         [InlineData(20, 5)]
         [InlineData(40, 5)]
+        [InlineData(30, 6)]
         public void XNumberOfOpponentsInYRandomOutcomeMatchesShouldNotMeatEachOtherTwice(int numPlayers, int numRounds)
         {
             var contestants = Enumerable.Range(1, numPlayers)
@@ -157,6 +158,21 @@ namespace KIB_Service.Tests.MatchupComponent
 
                     contestant2.Score += contestant2Score;
                     contestant2.PreviousOpponents.Add(contestant1);
+                }
+            }
+        }
+
+        [Fact]
+        public void SpecifiedMatchupScenarioShouldHaveExpectedOutcome()
+        {
+            foreach(var scenario in MatchupScenariosContainer.Scenarios) { 
+                var matchupEngine = new MatchupEngine();
+                var matchups = matchupEngine.GenerateMatchup(scenario.Contestants);
+
+                foreach(var matchup in matchups)
+                {
+                    Assert.True(scenario.ExpectedOutcome.Any(x => x.Contains(matchup.Contestant1.Identifier) && x.Contains(matchup.Contestant2.Identifier)),
+                                $"Scenario '{scenario.Name}' did not have the expected outcome. Contestant: {matchup.Contestant1.Identifier} and Contestant: {matchup.Contestant2.Identifier} was paired");
                 }
             }
         }

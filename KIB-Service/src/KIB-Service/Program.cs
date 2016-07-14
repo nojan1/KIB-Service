@@ -16,10 +16,15 @@ namespace KIB_Service
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
+                .UseStartup<Startup>();
 
-            host.Run();
+
+            if(args.Length == 1)
+            {
+                host = host.UseUrls(args[0]);
+            }
+
+            host.Build().Run();
         }
     }
 }

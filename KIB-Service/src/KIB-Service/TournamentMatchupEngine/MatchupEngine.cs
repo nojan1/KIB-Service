@@ -110,7 +110,7 @@ namespace KIB_Service.TournamentMatchupEngine
             return returnValue;
         }
 
-        private ICollection<ScoredContestantMatchup> ScoreContestantMatchups(ICollection<Contestant> contestants, params Func<Contestant, Contestant, ICollection<Contestant>, int>[] calculators)
+        private ICollection<ScoredContestantMatchup> ScoreContestantMatchups(ICollection<Contestant> contestants, params Func<Contestant, Contestant, ICollection<Contestant>, double>[] calculators)
         {
             var retval = new List<ScoredContestantMatchup>();
 
