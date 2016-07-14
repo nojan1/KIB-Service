@@ -24,10 +24,11 @@ namespace KIB_Service.Repositories
                                    new List<KeyValuePair<string, object>>
                                    {
                                        new KeyValuePair<string, object>("RoundNumber", newRound.RoundNumber),
-                                       new KeyValuePair<string, object>("TournamentId", newRound.TournamentId)
+                                       new KeyValuePair<string, object>("TournamentId", newRound.TournamentId),
+                                       new KeyValuePair<string, object>("Public", 0)
                                    },
                                    UnpackRound,
-                                   "Id, RoundNumber, TournamentId");
+                                   "Id, RoundNumber, TournamentId, Public");
         }
 
         public void AddMatchupsToRound(int roundId, ICollection<Matchup> matchups)
@@ -85,7 +86,7 @@ namespace KIB_Service.Repositories
 
         public Round GetCurrentRound(int tournamentId)
         {
-            var round = dbHelper.Get(@"select Id, RoundNumber, TournamentId from Round where TournamentId = " + tournamentId + " and RoundNumber = (select max(RoundNumber) from Round where TournamentId = " + tournamentId + ")", UnpackRound);
+            var round = dbHelper.Get(@"select Id, RoundNumber, TournamentId, Public from Round where TournamentId = " + tournamentId + " and RoundNumber = (select max(RoundNumber) from Round where TournamentId = " + tournamentId + ")", UnpackRound);
 
             if (round == null)
                 return null;
@@ -111,6 +112,16 @@ namespace KIB_Service.Repositories
                     PlayerId = reader.GetInt32(3)
                 };
             });
+        }
+
+        public void MakePublic(int roundId)
+        {
+            dbHelper.Update("Round", 
+                new List<KeyValuePair<string, object>>
+                {
+                    new KeyValuePair<string, object>("Public", 1)
+                },
+                new KeyValuePair<string, object>("Id", roundId));
         }
 
         public void SetScore(int matchupId, int player1Score, int player2Score)
@@ -180,7 +191,8 @@ namespace KIB_Service.Repositories
             {
                 Id = reader.GetInt32(0),
                 RoundNumber = reader.GetInt32(1),
-                TournamentId = reader.GetInt32(2)
+                TournamentId = reader.GetInt32(2),
+                Public = Convert.ToBoolean(reader.GetValue(3))
             };
         }
     }

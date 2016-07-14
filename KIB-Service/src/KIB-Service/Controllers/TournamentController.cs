@@ -70,12 +70,15 @@ namespace KIB_Service.Controllers
                 return NoContent();
             }
 
+
+            var currentRound = roundRepository.GetCurrentRound(tournamentId);
             var scores = roundRepository.GetScoresForTournament(tournamentId);
 
             return Ok(matchups.Select(x => new RoundMatchupDto
             {
                 RoundNumber = x.Key,
                 RoundId = x.Any() ? x.First().RoundId : -1,
+                Public = x.Any() && currentRound.Id == x.First().RoundId ? currentRound.Public : true,
                 Matchups = x.Select(y => new MatchupDto
                 {
                     Id = y.Id,
@@ -174,6 +177,13 @@ namespace KIB_Service.Controllers
 
             roundRepository.SetScore(matchupId, score.Player1Score, score.Player2Score);
 
+            return Ok();
+        }
+
+        [HttpPost("{tournamentId}/round/{roundId}/public")]
+        public IActionResult MakeRoundPublic(int tournamentId, int roundId)
+        {
+            roundRepository.MakePublic(roundId);
             return Ok();
         }
     }

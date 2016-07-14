@@ -12,6 +12,8 @@ namespace KIB_Service.Models
 
         public int RoundNumber { get; set; }
 
+        public bool Public { get; set; }
+
         public ICollection<Matchup> Matchups { get; set; }
     }
 }
