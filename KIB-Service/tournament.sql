@@ -21,6 +21,7 @@ create table Round (
 	Id int auto_increment primary key,
 	RoundNumber int not null,
 	TournamentId int not null,
+	Public tinyint not null default 0,
 
 	foreign key (TournamentId)
 		references Tournament(Id)

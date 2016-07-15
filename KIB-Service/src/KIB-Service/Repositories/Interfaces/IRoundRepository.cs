@@ -15,5 +15,6 @@ namespace KIB_Service.Repositories.Interfaces
         void SetScore(int matchupId, int player1Score, int player2Score);
         ICollection<Score> GetScoresForTournament(int tournamentId);
         void AddPseudoMatchupToRound(int roundId, int playerId);
+        void MakePublic(int roundId);
     }
 }
