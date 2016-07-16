@@ -22,7 +22,7 @@ namespace KIB_Service.TournamentMatchupEngine
         private const double MaxMatchupScore = 4;
         public static double ClosestInScore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
         {
-            var scoreBoard = allContestants.OrderBy(c => c.Score).ToList();
+            var scoreBoard = allContestants.OrderByDescending(c => c.Score).ToList();
             var contestant1Placement = scoreBoard.FindIndex(c => c.Identifier == contestant1.Identifier);
             var contestant2Placement = scoreBoard.FindIndex(c => c.Identifier == contestant2.Identifier);
 

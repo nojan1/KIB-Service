@@ -62,15 +62,64 @@ namespace KIB_Service.TournamentMatchupEngine
 
         private ICollection<ContestantMatchup> MatchupRoundX(ICollection<Contestant> contestants)
         {
-            var allContestantMatchups = ScoreContestantMatchups(contestants, MatchupCalculators.HaveMetBefore, MatchupCalculators.SameAffiliation, MatchupCalculators.ClosestInScore);
-            var scoredMatchups = CombineAndScoreContestantMatchups(allContestantMatchups, contestants.OrderByDescending(c => c.Score).ToList());
+            var retVal = new List<ContestantMatchup>();
+            var sortedContestants = contestants.OrderByDescending(c => c.Score).ToList();
 
-            var bestMatchup = scoredMatchups.First(m => m.Score == scoredMatchups.Max(x => x.Score)).Matchups.ToList().Shuffle().ToList();
-            for (int i = 1; i <= bestMatchup.Count; i++)
-                bestMatchup[i - 1].Table = i;
+            for(int i = 0; i < sortedContestants.Count - 1; i++)
+            {
+                Contestant contestant1 = sortedContestants[i]; 
+                Contestant contestant2 = null;
 
-            return bestMatchup;
+                if(retVal.Any(c => c.Contestant1.Identifier == contestant1.Identifier || c.Contestant2.Identifier == contestant1.Identifier))
+                {
+                    continue;
+                }
+
+                for(int x = 0; x < sortedContestants.Count; x++)
+                {
+                    if(!sortedContestants[x].PreviousOpponents.Any(c => c.Identifier == contestant1.Identifier) &&
+                        !contestant1.PreviousOpponents.Any(c => c.Identifier == sortedContestants[x].Identifier) &&
+                        !retVal.Any(c => c.Contestant1.Identifier == sortedContestants[x].Identifier || c.Contestant2.Identifier == sortedContestants[x].Identifier) &&
+                        !retVal.Any(c => c.Contestant1.Identifier == contestant1.Identifier || c.Contestant2.Identifier == contestant1.Identifier) &&
+                        contestant1.Identifier != sortedContestants[x].Identifier)
+                    {
+                        contestant2 = sortedContestants[x];
+                        break;
+                    }
+                }
+
+                if(contestant2 == null)
+                {
+                    contestant2 = sortedContestants[i + 1];
+                }
+
+                retVal.Add(new ContestantMatchup
+                {
+                    Contestant1 = contestant1,
+                    Contestant2 = contestant2
+                });
+            }
+
+            retVal = retVal.Shuffle().ToList();
+            for(int i = 1; i <= retVal.Count; i++)
+            {
+                retVal[i - 1].Table = i;
+            }
+
+            return retVal;
         }
+
+        //private ICollection<ContestantMatchup> MatchupRoundX(ICollection<Contestant> contestants)
+        //{
+        //    var allContestantMatchups = ScoreContestantMatchups(contestants, MatchupCalculators.HaveMetBefore, MatchupCalculators.SameAffiliation, MatchupCalculators.ClosestInScore);
+        //    var scoredMatchups = CombineAndScoreContestantMatchups(allContestantMatchups, contestants.OrderByDescending(c => c.Score).ToList());
+
+        //    var bestMatchup = scoredMatchups.First(m => m.Score == scoredMatchups.Max(x => x.Score)).Matchups.ToList().Shuffle().ToList();
+        //    for (int i = 1; i <= bestMatchup.Count; i++)
+        //        bestMatchup[i - 1].Table = i;
+
+        //    return bestMatchup;
+        //}
 
         private ICollection<MatchupScore> CombineAndScoreContestantMatchups(ICollection<ScoredContestantMatchup> allContestantMatchups, ICollection<Contestant> allContestants)
         {
