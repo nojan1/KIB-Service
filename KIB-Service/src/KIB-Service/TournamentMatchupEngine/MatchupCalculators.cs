@@ -22,13 +22,13 @@ namespace KIB_Service.TournamentMatchupEngine
         private const double MaxMatchupScore = 4;
         public static double ClosestInScore(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)
         {
-            int scoreDifference = Math.Abs(contestant1.Score - contestant2.Score);
-            var bestScoreDifference = allContestants.Where(c => c.Identifier != contestant1.Identifier).Select(c => Math.Abs(c.Score - contestant1.Score)).Min();
+            var scoreBoard = allContestants.OrderBy(c => c.Score).ToList();
+            var contestant1Placement = scoreBoard.FindIndex(c => c.Identifier == contestant1.Identifier);
+            var contestant2Placement = scoreBoard.FindIndex(c => c.Identifier == contestant2.Identifier);
 
-            if (scoreDifference == 0)
-                return MaxMatchupScore;
+            var placementDifference = Math.Abs(contestant1Placement - contestant2Placement);
 
-            return ((double)bestScoreDifference / (double)scoreDifference) * MaxMatchupScore;
+            return (1.0 / (double)placementDifference) * MaxMatchupScore;
         }
 
         public static double SameAffiliation(Contestant contestant1, Contestant contestant2, ICollection<Contestant> allContestants)

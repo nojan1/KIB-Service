@@ -78,7 +78,7 @@ namespace KIB_Service.Controllers
             {
                 RoundNumber = x.Key,
                 RoundId = x.Any() ? x.First().RoundId : -1,
-                Public = x.Any() && currentRound.Id == x.First().RoundId ? currentRound.Public : true,
+                Public = currentRound == null ? false : x.Any() && currentRound.Id == x.First().RoundId ? currentRound.Public : true,
                 Matchups = x.Select(y => new MatchupDto
                 {
                     Id = y.Id,
